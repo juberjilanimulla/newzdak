@@ -4,6 +4,7 @@ import cors from "cors";
 import dbConnect from "./db.js";
 import config from "./config.js";
 import bodyParser from "body-parser";
+import authRouter from "./routes/auth/authRouter.js";
 
 const app = express();
 const port = config.PORT;
@@ -44,7 +45,7 @@ app.use((err, req, res, next) => {
 });
 
 //routes
-
+app.use("/api/auth", authRouter);
 //database connected successfullys
 dbConnect()
   .then(() => {
