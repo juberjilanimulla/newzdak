@@ -5,6 +5,7 @@ import dbConnect from "./db.js";
 import config from "./config.js";
 import bodyParser from "body-parser";
 import authRouter from "./routes/auth/authRouter.js";
+import { Admin } from "./helper/helperFunction.js";
 
 const app = express();
 const port = config.PORT;
@@ -49,6 +50,7 @@ app.use("/api/auth", authRouter);
 //database connected successfullys
 dbConnect()
   .then(() => {
+    Admin();
     app.listen(port, () => {
       console.log(`server listening at ${port}`);
     });
