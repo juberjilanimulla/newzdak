@@ -1,14 +1,15 @@
 import { Router } from "express";
-import { errorResponse } from "../../helper/serverResponse";
+import { errorResponse, successResponse } from "../../helper/serverResponse";
+import articlemodel from "../../model/articlemodel";
 
-const articlesadminRouter = Router();
+const adminarticleRouter = Router();
 
-articlesadminRouter.post("/", getallartilesHandler);
-articlesadminRouter.post("/create", createarticleHandler);
-articlesadminRouter.put("/update", updatearticleHandler);
-articlesadminRouter.delete("/delete", deletearticleHandler);
+adminarticleRouter.post("/", getallartilesHandler);
+adminarticleRouter.post("/create", createarticleHandler);
+adminarticleRouter.put("/update", updatearticleHandler);
+adminarticleRouter.delete("/delete", deletearticleHandler);
 
-export default articlesadminRouter;
+export default adminarticleRouter;
 
 async function getallartilesHandler(req, res) {
   try {
@@ -20,8 +21,40 @@ async function getallartilesHandler(req, res) {
 
 async function createarticleHandler(req, res) {
   try {
-    const {title,metatitle,metadescription,content,city,} = req.body;
-
+    const {
+      title,
+      metatitle,
+      metadescription,
+      content,
+      city,
+      keywords,
+      categoryname,
+      authorid,
+    } = req.body;
+    if (
+      !title ||
+      !metatitle ||
+      !metadescription ||
+      !content ||
+      !city ||
+      !keywords ||
+      !categoryname ||
+      !authorid
+    ) {
+      return errorResponse(res, 400, "some params are missing");
+    }
+    const params = {
+      title,
+      metatitle,
+      metadescription,
+      content,
+      city,
+      keywords,
+      categoryname,
+      authorid,
+    };
+    const articles = await articlemodel.create(params);
+    successResponse(res, "successfully added", articles);
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
