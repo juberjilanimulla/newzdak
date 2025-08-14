@@ -3,14 +3,12 @@ import { Schema, model } from "mongoose";
 const articleSchema = new Schema(
   {
     title: { type: String },
-    slug: { type: String },
-    heroimage: String, // cover image URL
-    gallery: [String], // optional multiple images
-    summary: String, // short excerpt for cards
+    metatitle: { type: String },
+    image: [{ type: String, default: "" }], // cover image URL
+    video: [{ type: String, default: "" }], // optional multiple images
+    metadescription: String, // short excerpt for cards
     content: String, // HTML/Markdown
-    metatitle: String,
-    metadescription: String,
-    keywords: [String], // tags/SEO keywords
+    keywords: [{ type: String, default: "" }], // tags/SEO keywords
     categoryid: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "category",
@@ -22,13 +20,6 @@ const articleSchema = new Schema(
     },
     featured: { type: Boolean, default: false },
     breaking: { type: Boolean, default: false },
-    status: {
-      type: String,
-    },
-    scheduledAt: Date,
-    publishedAt: { type: Date, index: true },
-    readTimeMin: Number,
-    views: { type: Number },
   },
   { timestamps: true, versionKey: false }
 );

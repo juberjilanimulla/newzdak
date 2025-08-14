@@ -20,6 +20,8 @@ async function getallartilesHandler(req, res) {
 
 async function createarticleHandler(req, res) {
   try {
+    const {title,metatitle,metadescription,content,city,} = req.body;
+
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
