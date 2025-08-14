@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { errorResponse, successResponse } from "../../helper/serverResponse";
-import articlemodel from "../../model/articlemodel";
+import { errorResponse, successResponse } from "../../helper/serverResponse.js";
+import articlemodel from "../../model/articlemodel.js";
 
 const adminarticleRouter = Router();
 
@@ -54,6 +54,10 @@ async function createarticleHandler(req, res) {
       authorid,
     };
     const articles = await articlemodel.create(params);
+    await articles.populate({
+      path: "authorid",
+      select: "firstname lastname designation",
+    });
     successResponse(res, "successfully added", articles);
   } catch (error) {
     console.log("error", error);
