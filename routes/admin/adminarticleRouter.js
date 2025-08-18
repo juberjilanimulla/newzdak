@@ -26,6 +26,7 @@ adminarticleRouter.use("/upload", adminuploadarticleRouter);
 adminarticleRouter.delete("/singleimage", deletesinglearticleHandler);
 adminarticleRouter.post("/editorspicks", editorspicksarticleHandler);
 adminarticleRouter.post("/breaking", breakingarticleHandler);
+adminarticleRouter.post("/featured", featuredarticleHandler);
 
 export default adminarticleRouter;
 
@@ -286,7 +287,7 @@ async function editorspicksarticleHandler(req, res) {
       return errorResponse(
         res,
         400,
-        "Published must be a boolean (true/false)"
+        "editorspicks must be a boolean (true/false)"
       );
     }
 
@@ -325,16 +326,50 @@ async function breakingarticleHandler(req, res) {
     }
 
     if (typeof breaking !== "boolean") {
-      return errorResponse(
-        res,
-        400,
-        "Published must be a boolean (true/false)"
-      );
+      return errorResponse(res, 400, "breaking must be a boolean (true/false)");
     }
 
     const updatedArticle = await articlemodel.findByIdAndUpdate(
       articleid,
       { breaking },
+      { new: true }
+    );
+
+    if (!updatedArticle) {
+      return errorResponse(res, 404, "Article not found");
+    }
+
+    return successResponse(
+      res,
+      "Article approval status updated successfully",
+      updatedArticle
+    );
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function featuredarticleHandler(req, res) {
+  try {
+    const { featured, articleid } = req.body;
+
+    if (!articleid) {
+      return errorResponse(res, 400, "article ID is missing in URL params");
+    }
+
+    const existingArticle = await articlemodel.findById({ _id: articleid });
+    if (!existingArticle) {
+      return errorResponse(res, 404, "Article not found");
+    }
+
+    if (typeof featured !== "boolean") {
+      return errorResponse(res, 400, "featured must be a boolean (true/false)");
+    }
+
+    const updatedArticle = await articlemodel.findByIdAndUpdate(
+      articleid,
+      { featured },
       { new: true }
     );
 
