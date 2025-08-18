@@ -72,6 +72,10 @@ async function getallartilesHandler(req, res) {
     // Fetch paginated article
     const article = await articlemodel
       .find(query)
+      .populate({
+        path: "authorid",
+        select: "firstname lastname designation",
+      })
       .sort(sortBy)
       .skip(skip)
       .limit(limit);
@@ -348,7 +352,7 @@ async function breakingarticleHandler(req, res) {
     return successResponse(
       res,
       `Article breaking status set to ${breaking}`,
-      updatedBlog
+      updatedArticle
     );
   } catch (error) {
     console.log("error", error);
