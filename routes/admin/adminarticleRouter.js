@@ -329,20 +329,26 @@ async function breakingarticleHandler(req, res) {
       return errorResponse(res, 400, "breaking must be a boolean (true/false)");
     }
 
+    if (breaking === true) {
+      // Step 1: Set all other blogs to featured = false
+      await articlemodel.updateMany(
+        { breaking: true },
+        { $set: { breaking: false } }
+      );
+    }
     const updatedArticle = await articlemodel.findByIdAndUpdate(
       articleid,
       { breaking },
       { new: true }
     );
-
     if (!updatedArticle) {
       return errorResponse(res, 404, "Article not found");
     }
 
     return successResponse(
       res,
-      "Article approval status updated successfully",
-      updatedArticle
+      `Article breaking status set to ${breaking}`,
+      updatedBlog
     );
   } catch (error) {
     console.log("error", error);
@@ -367,19 +373,25 @@ async function featuredarticleHandler(req, res) {
       return errorResponse(res, 400, "featured must be a boolean (true/false)");
     }
 
+    if (featured === true) {
+      // Step 1: Set all other blogs to featured = false
+      await articlemodel.updateMany(
+        { featured: true },
+        { $set: { featured: false } }
+      );
+    }
     const updatedArticle = await articlemodel.findByIdAndUpdate(
       articleid,
       { featured },
       { new: true }
     );
-
     if (!updatedArticle) {
       return errorResponse(res, 404, "Article not found");
     }
 
     return successResponse(
       res,
-      "Article approval status updated successfully",
+      "Article featured status updated successfully",
       updatedArticle
     );
   } catch (error) {
