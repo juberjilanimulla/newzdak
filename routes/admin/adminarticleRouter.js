@@ -24,6 +24,8 @@ adminarticleRouter.put("/update", updatearticleHandler);
 adminarticleRouter.delete("/delete", deletearticleHandler);
 adminarticleRouter.use("/upload", adminuploadarticleRouter);
 adminarticleRouter.delete("/singleimage", deletesinglearticleHandler);
+adminarticleRouter.post("/editorspicks", editorspicksarticleHandler);
+adminarticleRouter.post("/breaking", breakingarticleHandler);
 
 export default adminarticleRouter;
 
@@ -261,6 +263,90 @@ async function deletesinglearticleHandler(req, res) {
     await article.save();
 
     return successResponse(res, "Image deleted successfully", article);
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function editorspicksarticleHandler(req, res) {
+  try {
+    const { editorspicks, articleid } = req.body;
+
+    if (!articleid) {
+      return errorResponse(res, 400, "article ID is missing in URL params");
+    }
+
+    const existingArticle = await articlemodel.findById({ _id: articleid });
+    if (!existingArticle) {
+      return errorResponse(res, 404, "Article not found");
+    }
+
+    if (typeof editorspicks !== "boolean") {
+      return errorResponse(
+        res,
+        400,
+        "Published must be a boolean (true/false)"
+      );
+    }
+
+    const updatedArticle = await articlemodel.findByIdAndUpdate(
+      articleid,
+      { editorspicks },
+      { new: true }
+    );
+
+    if (!updatedArticle) {
+      return errorResponse(res, 404, "Article not found");
+    }
+
+    return successResponse(
+      res,
+      "Article approval status updated successfully",
+      updatedArticle
+    );
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function breakingarticleHandler(req, res) {
+  try {
+    const { breaking, articleid } = req.body;
+
+    if (!articleid) {
+      return errorResponse(res, 400, "article ID is missing in URL params");
+    }
+
+    const existingArticle = await articlemodel.findById({ _id: articleid });
+    if (!existingArticle) {
+      return errorResponse(res, 404, "Article not found");
+    }
+
+    if (typeof breaking !== "boolean") {
+      return errorResponse(
+        res,
+        400,
+        "Published must be a boolean (true/false)"
+      );
+    }
+
+    const updatedArticle = await articlemodel.findByIdAndUpdate(
+      articleid,
+      { breaking },
+      { new: true }
+    );
+
+    if (!updatedArticle) {
+      return errorResponse(res, 404, "Article not found");
+    }
+
+    return successResponse(
+      res,
+      "Article approval status updated successfully",
+      updatedArticle
+    );
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");

@@ -21,7 +21,7 @@ const articleSchema = new Schema(
     },
     featured: { type: Boolean, default: false },
     breaking: { type: Boolean, default: false },
-    editorspick: { type: Boolean, default: false },
+    editorspicks: { type: Boolean, default: false },
     tags: String,
   },
   { timestamps: true, versionKey: false }
