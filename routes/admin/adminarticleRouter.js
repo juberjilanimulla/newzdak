@@ -45,6 +45,7 @@ async function getallartilesHandler(req, res) {
         { content: { $regex: searchRegex } },
         { category: { $regex: searchRegex } },
         { metatitle: { $regex: searchRegex } },
+        { tags: { $regex: searchRegex } },
       ];
     }
 
@@ -96,6 +97,7 @@ async function createarticleHandler(req, res) {
       keywords,
       categoryname,
       authorid,
+      tags,
     } = req.body;
     if (
       !title ||
@@ -105,7 +107,8 @@ async function createarticleHandler(req, res) {
       !city ||
       !keywords ||
       !categoryname ||
-      !authorid
+      !authorid ||
+      !tags
     ) {
       return errorResponse(res, 400, "some params are missing");
     }
@@ -118,6 +121,7 @@ async function createarticleHandler(req, res) {
       keywords,
       categoryname,
       authorid,
+      tags,
     };
     const articles = await articlemodel.create(params);
     await articles.populate({
@@ -152,7 +156,8 @@ async function updatearticleHandler(req, res) {
       !updatedData.keywords ||
       !updatedData.content ||
       !updatedData.city ||
-      !updatedData.authorid
+      !updatedData.authorid ||
+      !updatedData.tags
     ) {
       errorResponse(res, 404, "Some params are missing");
       return;
@@ -231,7 +236,7 @@ async function deletesinglearticleHandler(req, res) {
 
     // Find the article
     const article = await articlemodel.findById(_id);
-  
+
     if (!article) {
       return errorResponse(res, 404, "Article not found");
     }
