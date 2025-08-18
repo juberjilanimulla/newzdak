@@ -2,7 +2,11 @@ import { Router } from "express";
 import { errorResponse, successResponse } from "../../helper/serverResponse.js";
 import articlemodel from "../../model/articlemodel.js";
 import adminuploadarticleRouter from "./adminuploadarticleRouter.js";
-import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  DeleteObjectsCommand,
+  DeleteObjectCommand,
+} from "@aws-sdk/client-s3";
 
 const s3 = new S3Client({
   region: process.env.AWS_REGION,
@@ -19,6 +23,7 @@ adminarticleRouter.post("/create", createarticleHandler);
 adminarticleRouter.put("/update", updatearticleHandler);
 adminarticleRouter.delete("/delete", deletearticleHandler);
 adminarticleRouter.use("/upload", adminuploadarticleRouter);
+adminarticleRouter.delete("/singleimage", deletesinglearticleHandler);
 
 export default adminarticleRouter;
 
@@ -187,11 +192,11 @@ async function deletearticleHandler(req, res) {
         (url) => typeof url === "string" && url.includes(".amazonaws.com/")
       )
       .map((url) => url.split(".amazonaws.com/")[1]);
-    console.log("s3Key", s3Keys);
+
     // Delete from S3 if keys exist
     if (s3Keys.length > 0) {
       await s3.send(
-        new DeleteObjectCommand({
+        new DeleteObjectsCommand({
           Bucket: process.env.AWS_BUCKET_NAME,
           Delete: {
             Objects: s3Keys.map((key) => ({ Key: key })),
@@ -210,5 +215,49 @@ async function deletearticleHandler(req, res) {
   } catch (error) {
     console.error("Delete failed:", error);
     return errorResponse(res, 500, "Internal server error");
+  }
+}
+
+async function deletesinglearticleHandler(req, res) {
+  try {
+    const { _id, imageurl } = req.body;
+    if (!_id || !imageurl) {
+      return errorResponse(
+        res,
+        400,
+        "Article ID (_id) and imageUrl are required"
+      );
+    }
+
+    // Find the article
+    const article = await articlemodel.findById(_id);
+  
+    if (!article) {
+      return errorResponse(res, 404, "Article not found");
+    }
+
+    // Extract S3 key from URL
+    const parts = imageurl.split(".amazonaws.com/");
+    if (parts.length < 2) {
+      return errorResponse(res, 400, "Invalid image URL");
+    }
+    const s3Key = parts[1];
+
+    // Delete from S3
+    await s3.send(
+      new DeleteObjectCommand({
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: s3Key,
+      })
+    );
+
+    // Remove image from DB array
+    article.image = (article.image || []).filter((url) => url !== imageurl);
+    await article.save();
+
+    return successResponse(res, "Image deleted successfully", article);
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal server error");
   }
 }
