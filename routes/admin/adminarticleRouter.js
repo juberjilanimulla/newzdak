@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { errorResponse, successResponse } from "../../helper/serverResponse.js";
 import articlemodel from "../../model/articlemodel.js";
+import adminuploadarticleRouter from "./adminuploadarticleRouter.js";
 
 const adminarticleRouter = Router();
 
@@ -8,6 +9,7 @@ adminarticleRouter.post("/", getallartilesHandler);
 adminarticleRouter.post("/create", createarticleHandler);
 adminarticleRouter.put("/update", updatearticleHandler);
 adminarticleRouter.delete("/delete", deletearticleHandler);
+adminarticleRouter.use("/upload", adminuploadarticleRouter);
 
 export default adminarticleRouter;
 
@@ -191,3 +193,4 @@ async function deletearticleHandler(req, res) {
     errorResponse(res, 500, "internal server error");
   }
 }
+
