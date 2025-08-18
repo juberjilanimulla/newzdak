@@ -29,11 +29,23 @@ app.use(
 );
 
 app.use(express());
-app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.json({ limit: "10mb" }));
 app.use(express.json({ limit: "100mb" }));
 app.use(express.urlencoded({ extended: true, limit: "100mb" }));
+app.use(
+  cors({
+    origin: [
+      "https://newzdak.com",
+      "https://newzdak.vercel.app",
+      "http://localhost:3000",
+      "http://localhost:3001",
+      "http://localhost:3002",
+      "http://localhost:3003",
+    ],
+    credentials: true,
+  })
+);
 
 app.use((err, req, res, next) => {
   if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
