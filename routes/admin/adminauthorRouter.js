@@ -1,6 +1,7 @@
 import { Router } from "express";
 import authormodel from "../../model/authormodel.js";
 import { successResponse, errorResponse } from "../../helper/serverResponse.js";
+import articlemodel from "../../model/articlemodel.js";
 
 const adminauthorRouter = Router();
 
@@ -125,17 +126,60 @@ async function updateauthorHandler(req, res) {
 }
 
 async function deleteauthorHandler(req, res) {
-  try {
+     try {
     const { _id } = req.body;
     if (!_id) {
-      return errorResponse(res, 400, "author _id is required");
+      return errorResponse(res, 400, "article ID (_id) is required");
     }
-    const author = await authormodel.findById(_id);
-    if (!author) {
-      return errorResponse(res, 404, "author not found");
+
+    const article = await articlemodel.findById(_id);
+    if (!article) {
+      return errorResponse(res, 404, "article ID (_id) not found");
     }
-    const deleted = await authormodel.findByIdAndDelete({ _id: _id });
-    successResponse(res, "successfully deleted ");
+
+   let s3Keys = [];
+
+    // Case 1: single string
+    if (typeof article.image === "string") {
+      const parts = article.image.split(".amazonaws.com/");
+      if (parts[1]) s3Keys.push(parts[1]);
+    }
+
+    // Case 2: array of strings
+    if (Array.isArray(article.image)) {
+      article.image.forEach((url) => {
+        if (typeof url === "string") {
+          const parts = url.split(".amazonaws.com/");
+          if (parts[1]) s3Keys.push(parts[1]);
+        }
+      });
+    }
+
+    // Delete from S3
+    if (s3Keys.length === 1) {
+      await s3.send(
+        new DeleteObjectCommand({
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: s3Keys[0],
+        })
+      );
+    } else if (s3Keys.length > 1) {
+      await s3.send(
+        new DeleteObjectsCommand({
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Delete: {
+            Objects: s3Keys.map((Key) => ({ Key })),
+            Quiet: true,
+          },
+        })
+      );
+    }
+
+    // Delete article from DB
+    await articlemodel.findByIdAndDelete(_id);
+
+    return successResponse(res, "Article and associated images deleted");
+  
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");

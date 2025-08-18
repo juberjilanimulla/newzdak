@@ -5,7 +5,7 @@ const articleSchema = new Schema(
     title: { type: String },
     metatitle: { type: String },
     image: [{ type: String, default: "" }], // cover image URL
-    video: [{ type: String, default: "" }], // optional multiple images
+    video: { type: String, default: "" }, // optional multiple images
     metadescription: String, // short excerpt for cards
     content: String, // HTML/Markdown
     keywords: [{ type: String, default: "" }], // tags/SEO keywords

@@ -40,46 +40,51 @@ const upload = multer({
     if (isImage) cb(null, true);
     else cb(new Error("Only image files are allowed"));
   },
-}).single("image"); // Accept only one image
+}).array("images", 10); // Accept only one image
 
 const adminuploadarticleRouter = Router();
-
 adminuploadarticleRouter.post("/:id", (req, res) => {
   upload(req, res, async (err) => {
     if (err) return errorResponse(res, 400, err.message || "Upload error");
-    if (!req.file) return errorResponse(res, 400, "No file uploaded");
+    if (!req.files || req.files.length === 0)
+      return errorResponse(res, 400, "No files uploaded");
 
     try {
       const article = await articlemodel.findById(req.params.id);
       if (!article) {
-        fs.unlinkSync(req.file.path);
+        req.files.forEach((file) => fs.unlinkSync(file.path));
         return errorResponse(res, 404, "Article not found");
       }
 
-      const fileStream = createReadStream(req.file.path);
-      const fileName = `${req.params.id}-${Date.now()}${path.extname(
-        req.file.originalname
-      )}`;
-      const s3Key = `articleimages/${fileName}`;
+      const uploadedUrls = [];
 
-      const uploadCommand = new PutObjectCommand({
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Key: s3Key,
-        Body: fileStream,
-        ContentType: req.file.mimetype,
-      });
+      for (const file of req.files) {
+        const fileStream = createReadStream(file.path);
+        const fileName = `${req.params.id}-${Date.now()}-${file.originalname}`;
+        const s3Key = `articleimages/${fileName}`;
 
-      await s3.send(uploadCommand);
+        const uploadCommand = new PutObjectCommand({
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: s3Key,
+          Body: fileStream,
+          ContentType: file.mimetype,
+        });
 
-      const imageUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`;
-      article.image = imageUrl;
+        await s3.send(uploadCommand);
+
+        const imageUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`;
+        uploadedUrls.push(imageUrl);
+
+        fs.unlinkSync(file.path); // remove local file
+      }
+
+      article.image.push(...uploadedUrls);
 
       await article.save();
-      fs.unlinkSync(req.file.path); // Remove local temp file
 
-      return successResponse(res, "Image uploaded successfully", article);
+      return successResponse(res, "Images uploaded successfully", article);
     } catch (error) {
-      console.error("Upload failed:", error.message);
+      //   console.error("Upload failed:", error.message);
       if (fs.existsSync(req.file?.path)) fs.unlinkSync(req.file.path);
       return errorResponse(res, 500, "Image upload failed");
     }

@@ -2,6 +2,15 @@ import { Router } from "express";
 import { errorResponse, successResponse } from "../../helper/serverResponse.js";
 import articlemodel from "../../model/articlemodel.js";
 import adminuploadarticleRouter from "./adminuploadarticleRouter.js";
+import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
+
+const s3 = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+});
 
 const adminarticleRouter = Router();
 
@@ -163,34 +172,43 @@ async function deletearticleHandler(req, res) {
   try {
     const { _id } = req.body;
     if (!_id) {
-      return errorResponse(res, 400, "article ID (_id) is required");
+      return errorResponse(res, 400, "Article ID (_id) is required");
     }
 
-    // Find property before deletion (to access images)
+    // Find the article
     const article = await articlemodel.findById(_id);
     if (!article) {
-      return errorResponse(res, 404, "article not found");
+      return errorResponse(res, 404, "Article not found");
     }
 
-    // Delete all images from S3
-    const s3Key = article.image?.split(".amazonaws.com/")[1];
-
-    if (s3Key) {
+    // Extract S3 keys from image array
+    const s3Keys = (article.image || [])
+      .filter(
+        (url) => typeof url === "string" && url.includes(".amazonaws.com/")
+      )
+      .map((url) => url.split(".amazonaws.com/")[1]);
+    console.log("s3Key", s3Keys);
+    // Delete from S3 if keys exist
+    if (s3Keys.length > 0) {
       await s3.send(
         new DeleteObjectCommand({
           Bucket: process.env.AWS_BUCKET_NAME,
-          Key: s3Key,
+          Delete: {
+            Objects: s3Keys.map((key) => ({ Key: key })),
+          },
         })
       );
     }
 
-    // Delete blog from DB
+    // Finally delete the article from DB
     await articlemodel.findByIdAndDelete(_id);
 
-    return successResponse(res, "article and associated images deleted");
+    return successResponse(
+      res,
+      "Article and associated images deleted successfully"
+    );
   } catch (error) {
-    console.log("error", error);
-    errorResponse(res, 500, "internal server error");
+    console.error("Delete failed:", error);
+    return errorResponse(res, 500, "Internal server error");
   }
 }
-
