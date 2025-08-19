@@ -16,7 +16,8 @@ async function getallsubcategoryHandler(req, res) {
   try {
     const subcategories = await subcategorymodel
       .find({})
-      .populate("categoryid", "categoryname description"); // show category info
+      .populate("categoryid", "categoryname description")
+      .sort({ createdAt: -1 }); // show category info
     successResponse(res, "success", subcategories);
   } catch (error) {
     console.log("error", error);
@@ -28,11 +29,14 @@ async function getallsubcategoryHandler(req, res) {
 async function createsubcategoryHandler(req, res) {
   try {
     const { subcategoryname, description, categoryid } = req.body;
-    if (!name || !description || !categoryid) {
+    if (!subcategoryname || !description || !categoryid) {
       return errorResponse(res, 400, "some params are missing");
     }
 
-    const exists = await subcategorymodel.findOne({ subcategoryname, categoryid });
+    const exists = await subcategorymodel.findOne({
+      subcategoryname,
+      categoryid,
+    });
     if (exists) {
       return errorResponse(
         res,
@@ -66,7 +70,10 @@ async function updatesubcategoryHandler(req, res) {
     ) {
       return errorResponse(res, 400, "some params are missing");
     }
-
+    const subcategoryid = await subcategorymodel.findById({ _id: _id });
+    if (!subcategoryid) {
+      return errorResponse(res, 404, "subcategory id not found");
+    }
     const options = { new: true };
     const subcategory = await subcategorymodel.findByIdAndUpdate(
       _id,

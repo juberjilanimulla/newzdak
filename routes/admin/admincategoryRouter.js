@@ -47,6 +47,10 @@ async function updatecategoryHandler(req, res) {
       return errorResponse(res, 404, "category_id is required");
     }
     const options = { new: true };
+    const categoryid = await categorymodel.findById({ _id: _id });
+    if (!categoryid) {
+      return errorResponse(res, 404, "category id not found");
+    }
 
     if (!updatedData.categoryname || !updatedData.description) {
       return errorResponse(res, 400, "some params are missing");

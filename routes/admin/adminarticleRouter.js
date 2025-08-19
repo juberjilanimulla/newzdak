@@ -72,10 +72,9 @@ async function getallartilesHandler(req, res) {
     // Fetch paginated article
     const article = await articlemodel
       .find(query)
-      .populate({
-        path: "authorid",
-        select: "firstname lastname designation",
-      })
+      .populate("authorid", "firstname lastname designation _id")
+      .populate("categoryid", "name description _id")
+      .populate("subcategoryid", "name description _id")
       .sort(sortBy)
       .skip(skip)
       .limit(limit);
@@ -103,6 +102,7 @@ async function createarticleHandler(req, res) {
       city,
       keywords,
       categoryid,
+      subcategoryid,
       authorid,
       tags,
     } = req.body;
@@ -114,6 +114,7 @@ async function createarticleHandler(req, res) {
       !city ||
       !keywords ||
       !categoryid ||
+      !subcategoryid ||
       !authorid ||
       !tags
     ) {
@@ -127,14 +128,15 @@ async function createarticleHandler(req, res) {
       city,
       keywords,
       categoryid,
+      subcategoryid,
       authorid,
       tags,
     };
     const articles = await articlemodel.create(params);
-    await articles.populate({
-      path: "authorid",
-      select: "firstname lastname designation _id",
-    });
+    await articles.populate("authorid", "firstname lastname designation _id");
+    await articles.populate("categoryid", "name description _id");
+    await articles.populate("subcategoryid", "name description _id");
+
     successResponse(res, "successfully added", articles);
   } catch (error) {
     console.log("error", error);
@@ -159,6 +161,7 @@ async function updatearticleHandler(req, res) {
       !updatedData.title ||
       !updatedData.metatitle ||
       !updatedData.categoryid ||
+      !updatedData.subcategoryid ||
       !updatedData.metadescription ||
       !updatedData.keywords ||
       !updatedData.content ||
@@ -174,10 +177,10 @@ async function updatearticleHandler(req, res) {
       updatedData,
       options
     );
-    await article.populate({
-      path: "authorid",
-      select: "firstname lastname designation _id",
-    });
+    await article.populate("authorid", "firstname lastname designation _id");
+    await article.populate("categoryid", "name description _id");
+    await article.populate("subcategoryid", "name description _id");
+
     successResponse(res, "successfully updated", article);
   } catch (error) {
     consolelog("error", error);
