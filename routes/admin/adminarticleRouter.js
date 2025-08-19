@@ -377,13 +377,6 @@ async function featuredarticleHandler(req, res) {
       return errorResponse(res, 400, "featured must be a boolean (true/false)");
     }
 
-    if (featured === true) {
-      // Step 1: Set all other blogs to featured = false
-      await articlemodel.updateMany(
-        { featured: true },
-        { $set: { featured: false } }
-      );
-    }
     const updatedArticle = await articlemodel.findByIdAndUpdate(
       articleid,
       { featured },
