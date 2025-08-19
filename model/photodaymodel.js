@@ -1,4 +1,4 @@
-import { monogoose, Schema, model } from "mongoose";
+import { Schema, model } from "mongoose";
 
 const photodaySchema = new Schema(
   {
