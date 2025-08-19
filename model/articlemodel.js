@@ -13,8 +13,10 @@ const articleSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "category",
     },
-    categoryname: String,
-    city: String, // e.g., "Hyderabad"
+    subcategoryid: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "subcategory",
+    },
     authorid: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "author",
