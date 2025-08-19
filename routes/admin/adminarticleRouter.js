@@ -99,7 +99,6 @@ async function createarticleHandler(req, res) {
       metatitle,
       metadescription,
       content,
-      city,
       keywords,
       categoryid,
       subcategoryid,
@@ -111,7 +110,6 @@ async function createarticleHandler(req, res) {
       !metatitle ||
       !metadescription ||
       !content ||
-      !city ||
       !keywords ||
       !categoryid ||
       !subcategoryid ||
@@ -125,7 +123,6 @@ async function createarticleHandler(req, res) {
       metatitle,
       metadescription,
       content,
-      city,
       keywords,
       categoryid,
       subcategoryid,
@@ -165,7 +162,6 @@ async function updatearticleHandler(req, res) {
       !updatedData.metadescription ||
       !updatedData.keywords ||
       !updatedData.content ||
-      !updatedData.city ||
       !updatedData.authorid ||
       !updatedData.tags
     ) {
