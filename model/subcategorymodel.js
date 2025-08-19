@@ -2,8 +2,7 @@ import { mongoose, Schema, model } from "mongoose";
 
 const subcategorySchema = new Schema(
   {
-    name: { type: String }, // e.g. City News, Crime & Safety
-    slug: { type: String }, // seo-friendly url: city-news
+    subcategoryname: { type: String }, // e.g. City News, Crime & Safety
     description: { type: String, default: "" }, // small text about subcategory
     categoryid: {
       type: mongoose.Schema.Types.ObjectId,
