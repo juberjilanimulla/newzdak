@@ -7,7 +7,12 @@ const articleSchema = new Schema(
     image: [{ type: String, default: "" }], // cover image URL
     video: { type: String, default: "" }, // optional multiple images
     metadescription: String, // short excerpt for cards
-    content: String, // HTML/Markdown
+    content: [
+      {
+        title: String,
+        description: String,
+      },
+    ], // HTML/Markdown
     keywords: [{ type: String, default: "" }], // tags/SEO keywords
     categoryid: {
       type: mongoose.Schema.Types.ObjectId,
