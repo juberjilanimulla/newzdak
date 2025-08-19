@@ -41,12 +41,12 @@ const upload = multer({
     else cb(new Error("Only image files are allowed"));
   },
 }).single("photo"); // Accept only one image
-
 const adminuploadphotodayRouter = Router();
+
 adminuploadphotodayRouter.post("/:id", (req, res) => {
   upload(req, res, async (err) => {
     if (err) return errorResponse(res, 400, err.message || "Upload error");
-    if (!req.files) return errorResponse(res, 400, "No files uploaded");
+    if (!req.file) return errorResponse(res, 400, "No file uploaded");
 
     try {
       const photoday = await photodaymodel.findById(req.params.id);
