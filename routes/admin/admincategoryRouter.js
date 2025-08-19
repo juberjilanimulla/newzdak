@@ -4,7 +4,7 @@ import categorymodel from "../../model/categorymodel.js";
 
 const admincategoryRouter = Router();
 
-admincategoryRouter.post("/", getallcategoryHandler);
+admincategoryRouter.get("/", getallcategoryHandler);
 admincategoryRouter.post("/create", createcategoryHandler);
 admincategoryRouter.put("/update", updatecategoryHandler);
 admincategoryRouter.delete("/delete", deletecategoryHandler);
@@ -13,7 +13,7 @@ export default admincategoryRouter;
 
 async function getallcategoryHandler(req, res) {
   try {
-    const category = await categorymodel.find();
+    const category = await categorymodel.find({});
     successResponse(res, "success", category);
   } catch (error) {
     console.log("error", error);

@@ -102,7 +102,7 @@ async function createarticleHandler(req, res) {
       content,
       city,
       keywords,
-      categoryname,
+      categoryid,
       authorid,
       tags,
     } = req.body;
@@ -113,7 +113,7 @@ async function createarticleHandler(req, res) {
       !content ||
       !city ||
       !keywords ||
-      !categoryname ||
+      !categoryid ||
       !authorid ||
       !tags
     ) {
@@ -126,7 +126,7 @@ async function createarticleHandler(req, res) {
       content,
       city,
       keywords,
-      categoryname,
+      categoryid,
       authorid,
       tags,
     };
@@ -158,7 +158,7 @@ async function updatearticleHandler(req, res) {
     if (
       !updatedData.title ||
       !updatedData.metatitle ||
-      !updatedData.categoryname ||
+      !updatedData.categoryid ||
       !updatedData.metadescription ||
       !updatedData.keywords ||
       !updatedData.content ||
