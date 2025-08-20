@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { errorResponse } from "../../helper/serverResponse";
+import { errorResponse } from "../../helper/serverResponse.js";
+import adminuploadadvertisementRouter from "./adminuploadphotodayRouter.js";
 
 const adminadvertisementRouter = Router();
 
@@ -7,6 +8,7 @@ adminadvertisementRouter.post("/", getalladvertisementHandler);
 adminadvertisementRouter.post("/", createadvertisementHandler);
 adminadvertisementRouter.post("/", updateadvertisementHandler);
 adminadvertisementRouter.post("/", deleteadvertisementHandler);
+adminadvertisementRouter.use("/upload", adminuploadadvertisementRouter);
 
 export default adminadvertisementRouter;
 
