@@ -9,7 +9,6 @@ const advertisementSchema = new Schema(
       default: "",
     },
     imageurl: { type: String, default: "" },
-    redirecturl: { type: String, default: "" }, // link when user clicks ad
     size: {
       type: String,
       // enum: ["small", "medium", "large"],
