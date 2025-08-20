@@ -97,12 +97,12 @@ async function updateadvertisementHandler(req, res) {
     ) {
       return errorResponse(res, 400, "some params are missing");
     }
-    const photoday = await photodaymodel.findByIdAndUpdate(
+    const advertise = await advertisementmodel.findByIdAndUpdate(
       _id,
       updatedData,
       options
     );
-    successResponse(res, "successResponse updated", photoday);
+    successResponse(res, "successResponse updated", advertise);
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
@@ -111,6 +111,43 @@ async function updateadvertisementHandler(req, res) {
 
 async function deleteadvertisementHandler(req, res) {
   try {
+    const { _id } = req.body;
+    if (!_id) {
+      return errorResponse(res, 400, "photo ID (_id) is required");
+    }
+
+    // Find the article
+    const photoday = await photodaymodel.findById(_id);
+    if (!photoday) {
+      return errorResponse(res, 404, "photoday not found");
+    }
+
+    // Extract S3 keys from image array
+    const s3Keys = (photoday.photo || [])
+      .filter(
+        (url) => typeof url === "string" && url.includes(".amazonaws.com/")
+      )
+      .map((url) => url.split(".amazonaws.com/")[1]);
+
+    // Delete from S3 if keys exist
+    if (s3Keys.length > 0) {
+      await s3.send(
+        new DeleteObjectsCommand({
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Delete: {
+            Objects: s3Keys.map((key) => ({ Key: key })),
+          },
+        })
+      );
+    }
+
+    // Finally delete the article from DB
+    await photodaymodel.findByIdAndDelete(_id);
+
+    return successResponse(
+      res,
+      "PhotoofDay and associated photo deleted successfully"
+    );
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");

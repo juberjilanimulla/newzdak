@@ -14,8 +14,8 @@ const advertisementSchema = new Schema(
       // enum: ["small", "medium", "large"],
       default: "",
     },
-    position: { type: String, required: true }, // e.g., "homepage-top", "article-right", etc.
-    isActive: { type: Boolean, default: true },
+    position: { type: String }, // e.g., "homepage-top", "article-right", etc.
+    isActive: { type: Boolean, default: false },
   },
   { timestamps: true, versionKey: false }
 );
