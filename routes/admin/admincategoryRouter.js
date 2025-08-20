@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { errorResponse, successResponse } from "../../helper/serverResponse.js";
 import categorymodel from "../../model/categorymodel.js";
+import subcategorymodel from "../../model/subcategorymodel.js";
 
 const admincategoryRouter = Router();
 
@@ -77,6 +78,7 @@ async function deletecategoryHandler(req, res) {
     if (!category) {
       return errorResponse(res, 404, "category not found");
     }
+    await subcategorymodel.deleteMany({ categoryid: _id });
     const deleted = await categorymodel.findByIdAndDelete({ _id: _id });
     successResponse(res, "successfully deleted ");
   } catch (error) {

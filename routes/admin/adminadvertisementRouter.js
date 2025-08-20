@@ -2,6 +2,19 @@ import { Router } from "express";
 import { errorResponse, successResponse } from "../../helper/serverResponse.js";
 import adminuploadadvertisementRouter from "./adminuploadphotodayRouter.js";
 import advertisementmodel from "../../model/advertisementmodel.js";
+import {
+  S3Client,
+  DeleteObjectsCommand,
+  DeleteObjectCommand,
+} from "@aws-sdk/client-s3";
+
+const s3 = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+});
 
 const adminadvertisementRouter = Router();
 
@@ -116,42 +129,36 @@ async function updateadvertisementHandler(req, res) {
 async function deleteadvertisementHandler(req, res) {
   try {
     const { _id } = req.body;
+
     if (!_id) {
       return errorResponse(res, 400, "advertise ID (_id) is required");
     }
 
-    // Find the article
+    // Find the advertisement
     const advertise = await advertisementmodel.findById(_id);
     if (!advertise) {
       return errorResponse(res, 404, "advertisement not found");
     }
 
-    // Extract S3 keys from image array
-    const s3Keys = (advertise.imageurl || [])
-      .filter(
-        (url) => typeof url === "string" && url.includes(".amazonaws.com/")
-      )
-      .map((url) => url.split(".amazonaws.com/")[1]);
+    let s3Key = null;
+    if (advertise.imageurl && advertise.imageurl.includes(".amazonaws.com/")) {
+      s3Key = advertise.imageurl.split(".amazonaws.com/")[1];
+    }
 
-    // Delete from S3 if keys exist
-    if (s3Keys.length > 0) {
+    // Delete image from S3
+    if (s3Key) {
       await s3.send(
-        new DeleteObjectsCommand({
+        new DeleteObjectCommand({
           Bucket: process.env.AWS_BUCKET_NAME,
-          Delete: {
-            Objects: s3Keys.map((key) => ({ Key: key })),
-          },
+          Key: s3Key,
         })
       );
     }
 
-    // Finally delete the advertise from DB
+    // Delete advertisement from DB
     await advertisementmodel.findByIdAndDelete(_id);
 
-    return successResponse(
-      res,
-      "advertise and associated image deleted successfully"
-    );
+    return successResponse(res, "advertise and image deleted successfully");
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
