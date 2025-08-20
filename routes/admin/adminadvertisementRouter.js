@@ -10,7 +10,10 @@ adminadvertisementRouter.post("/create", createadvertisementHandler);
 adminadvertisementRouter.put("/update", updateadvertisementHandler);
 adminadvertisementRouter.delete("/delete", deleteadvertisementHandler);
 adminadvertisementRouter.use("/upload", adminuploadadvertisementRouter);
-adminadvertisementRouter.delete("/sin");
+adminadvertisementRouter.delete(
+  "/singledelete",
+  singledeleteadvertisementHandler
+);
 
 export default adminadvertisementRouter;
 
@@ -189,7 +192,9 @@ async function singledeleteadvertisementHandler(req, res) {
     );
 
     // Remove image from DB array
-    advertise.imageurl = (advertise.imageurl || []).filter((url) => url !== imageurl);
+    advertise.imageurl = (advertise.imageurl || []).filter(
+      (url) => url !== imageurl
+    );
     await advertise.save();
 
     return successResponse(res, "Image deleted successfully", advertise);
