@@ -10,6 +10,7 @@ adminadvertisementRouter.post("/create", createadvertisementHandler);
 adminadvertisementRouter.put("/update", updateadvertisementHandler);
 adminadvertisementRouter.delete("/delete", deleteadvertisementHandler);
 adminadvertisementRouter.use("/upload", adminuploadadvertisementRouter);
+adminadvertisementRouter.delete("/sin");
 
 export default adminadvertisementRouter;
 
@@ -113,17 +114,17 @@ async function deleteadvertisementHandler(req, res) {
   try {
     const { _id } = req.body;
     if (!_id) {
-      return errorResponse(res, 400, "photo ID (_id) is required");
+      return errorResponse(res, 400, "advertise ID (_id) is required");
     }
 
     // Find the article
-    const photoday = await photodaymodel.findById(_id);
-    if (!photoday) {
-      return errorResponse(res, 404, "photoday not found");
+    const advertise = await advertisementmodel.findById(_id);
+    if (!advertise) {
+      return errorResponse(res, 404, "advertisement not found");
     }
 
     // Extract S3 keys from image array
-    const s3Keys = (photoday.photo || [])
+    const s3Keys = (advertise.imageurl || [])
       .filter(
         (url) => typeof url === "string" && url.includes(".amazonaws.com/")
       )
@@ -141,13 +142,57 @@ async function deleteadvertisementHandler(req, res) {
       );
     }
 
-    // Finally delete the article from DB
-    await photodaymodel.findByIdAndDelete(_id);
+    // Finally delete the advertise from DB
+    await advertisementmodel.findByIdAndDelete(_id);
 
     return successResponse(
       res,
-      "PhotoofDay and associated photo deleted successfully"
+      "advertise and associated image deleted successfully"
     );
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function singledeleteadvertisementHandler(req, res) {
+  try {
+    const { _id, imageurl } = req.body;
+    if (!_id || !imageurl) {
+      return errorResponse(
+        res,
+        400,
+        "advertisement ID (_id) and imageurl are required"
+      );
+    }
+
+    // Find the advertisement
+    const advertise = await advertisementmodel.findById(_id);
+
+    if (!advertise) {
+      return errorResponse(res, 404, "advertise not found");
+    }
+
+    // Extract S3 key from URL
+    const parts = imageurl.split(".amazonaws.com/");
+    if (parts.length < 2) {
+      return errorResponse(res, 400, "Invalid photo URL");
+    }
+    const s3Key = parts[1];
+
+    // Delete from S3
+    await s3.send(
+      new DeleteObjectCommand({
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: s3Key,
+      })
+    );
+
+    // Remove image from DB array
+    advertise.imageurl = (advertise.imageurl || []).filter((url) => url !== imageurl);
+    await advertise.save();
+
+    return successResponse(res, "Image deleted successfully", advertise);
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
