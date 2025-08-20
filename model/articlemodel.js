@@ -27,6 +27,7 @@ const articleSchema = new Schema(
       ref: "author",
     },
     featured: { type: Boolean, default: false },
+    videofeatured: { type: Boolean, default: false },
     breaking: { type: Boolean, default: false },
     editorspicks: { type: Boolean, default: false },
     published: { type: Boolean, default: false },

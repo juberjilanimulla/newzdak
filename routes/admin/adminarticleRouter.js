@@ -28,6 +28,7 @@ adminarticleRouter.post("/editorspicks", editorspicksarticleHandler);
 adminarticleRouter.post("/breaking", breakingarticleHandler);
 adminarticleRouter.post("/featured", featuredarticleHandler);
 adminarticleRouter.post("/published", publishedarticleHandler);
+adminarticleRouter.post("/videofeatured", videofeaturedHandler);
 
 export default adminarticleRouter;
 
@@ -431,6 +432,47 @@ async function publishedarticleHandler(req, res) {
     return successResponse(
       res,
       "Article approval status updated successfully",
+      updatedArticle
+    );
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function videofeaturedHandler(req, res) {
+  try {
+    const { videofeatured, articleid } = req.body;
+
+    if (!articleid) {
+      return errorResponse(res, 400, "article ID is missing in URL params");
+    }
+
+    const existingArticle = await articlemodel.findById({ _id: articleid });
+    if (!existingArticle) {
+      return errorResponse(res, 404, "Article not found");
+    }
+
+    if (typeof videofeatured !== "boolean") {
+      return errorResponse(
+        res,
+        400,
+        "videofeatured must be a boolean (true/false)"
+      );
+    }
+
+    const updatedArticle = await articlemodel.findByIdAndUpdate(
+      articleid,
+      { videofeatured },
+      { new: true }
+    );
+    if (!updatedArticle) {
+      return errorResponse(res, 404, "Article not found");
+    }
+
+    return successResponse(
+      res,
+      "Article featured status updated successfully",
       updatedArticle
     );
   } catch (error) {
