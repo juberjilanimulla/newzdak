@@ -84,6 +84,25 @@ async function createadvertisementHandler(req, res) {
 
 async function updateadvertisementHandler(req, res) {
   try {
+    const { _id, ...updatedData } = req.body;
+    if (!_id) {
+      return errorResponse(res, 404, "advertisement _id is required");
+    }
+    const options = { new: true };
+    if (
+      !updatedData.companyname ||
+      !updatedData.adtype ||
+      !updatedData.size ||
+      !updatedData.position
+    ) {
+      return errorResponse(res, 400, "some params are missing");
+    }
+    const photoday = await photodaymodel.findByIdAndUpdate(
+      _id,
+      updatedData,
+      options
+    );
+    successResponse(res, "successResponse updated", photoday);
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");

@@ -23,15 +23,15 @@ async function getallcategoryHandler(req, res) {
 
 async function createcategoryHandler(req, res) {
   try {
-    const { categoryname, description } = req.body;
-    if (!categoryname || !description) {
+    const { categoryname } = req.body;
+    if (!categoryname) {
       return errorResponse(res, 400, "some params are missing");
     }
     const existingcategory = await categorymodel.findOne({ categoryname });
     if (existingcategory) {
       return errorResponse(res, 404, "Already category is exist");
     }
-    const params = { categoryname, description };
+    const params = { categoryname };
     const category = await categorymodel.create(params);
     successResponse(res, "succcess", category);
   } catch (error) {
@@ -52,7 +52,7 @@ async function updatecategoryHandler(req, res) {
       return errorResponse(res, 404, "category id not found");
     }
 
-    if (!updatedData.categoryname || !updatedData.description) {
+    if (!updatedData.categoryname) {
       return errorResponse(res, 400, "some params are missing");
     }
     const category = await categorymodel.findByIdAndUpdate(
