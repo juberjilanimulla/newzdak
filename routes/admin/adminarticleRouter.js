@@ -75,8 +75,8 @@ async function getallartilesHandler(req, res) {
     const article = await articlemodel
       .find(query)
       .populate("authorid", "firstname lastname designation _id")
-      .populate("categoryid", "categoryname description _id")
-      .populate("subcategoryid", "subcategoryname description _id")
+      .populate("categoryid", "categoryname  _id")
+      .populate("subcategoryid", "subcategoryname  _id")
       .sort(sortBy)
       .skip(skip)
       .limit(limit);
@@ -127,7 +127,7 @@ async function createarticleHandler(req, res) {
       content,
       keywords,
       categoryid,
-      subcategoryid,
+      subcategoryid: subcategoryid || "",
       authorid,
       tags,
     };
