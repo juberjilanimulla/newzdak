@@ -20,8 +20,9 @@ const articleSchema = new Schema(
     },
     subcategoryid: {
       type: mongoose.Schema.Types.ObjectId,
-      default: "",
+
       ref: "subcategory",
+      default: "",
     },
     authorid: {
       type: mongoose.Schema.Types.ObjectId,

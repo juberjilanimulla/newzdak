@@ -114,6 +114,7 @@ async function createarticleHandler(req, res) {
       !content ||
       !keywords ||
       !categoryid ||
+      !subcategoryid ||
       !authorid ||
       !tags
     ) {
@@ -126,7 +127,7 @@ async function createarticleHandler(req, res) {
       content,
       keywords,
       categoryid,
-      subcategoryid: subcategoryid || "",
+      subcategoryid,
       authorid,
       tags,
     };
