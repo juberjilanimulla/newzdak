@@ -7,6 +7,7 @@ const userarticleRouter = Router();
 userarticleRouter.get("/breaking", getbreakingnewsHandler);
 userarticleRouter.get("/editorspicks", geteditorspicksHandler);
 userarticleRouter.get("/national", getnationalHandler);
+userarticleRouter.get("/category", getcategoryHandler);
 
 export default userarticleRouter;
 
@@ -76,6 +77,14 @@ async function getnationalHandler(req, res) {
     });
   } catch (error) {
     console.log("error", error);
+    errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function getcategoryHandler(req, res) {
+  try {
+    // const category
+  } catch (error) {
     errorResponse(res, 500, "internal server error");
   }
 }

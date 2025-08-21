@@ -40,6 +40,7 @@ app.use(
       "http://localhost:3002",
       "http://localhost:3003",
       "http://localhost:4000",
+      "http://localhost:3000",
       "http://192.168.0.6:3000", // for local network testing
       "http://192.168.0.6:3001", // add more if needed
     ],
