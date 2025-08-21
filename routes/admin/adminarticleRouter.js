@@ -114,7 +114,6 @@ async function createarticleHandler(req, res) {
       !content ||
       !keywords ||
       !categoryid ||
-      !subcategoryid ||
       !authorid ||
       !tags
     ) {
