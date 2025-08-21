@@ -114,7 +114,6 @@ async function createarticleHandler(req, res) {
       !content ||
       !keywords ||
       !categoryid ||
-      !subcategoryid ||
       !authorid ||
       !tags
     ) {
@@ -127,15 +126,18 @@ async function createarticleHandler(req, res) {
       content,
       keywords,
       categoryid,
-      subcategoryid,
+      subcategoryid: subcategoryid || null,
       authorid,
       tags,
     };
     const articles = await articlemodel.create(params);
     await articles.populate("authorid", "firstname lastname designation _id");
-    await articles.populate("categoryid", "name description _id");
-    await articles.populate("subcategoryid", "name description _id");
-
+    await articles.populate("categoryid", "categoryname description _id");
+    (await articles.populate(
+      "subcategoryid",
+      "subcategoryname description _id"
+    )) || " ";
+ 
     successResponse(res, "successfully added", articles);
   } catch (error) {
     console.log("error", error);

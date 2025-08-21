@@ -35,10 +35,11 @@ app.use(
       "https://api.newzdak.com.firstclusive.com",
       "https://newzdak.vercel.app", // your frontend URL on Vercel
       "https://newzdak.com", // another domain if required
-      "http://localhost:3000", // local dev environment (adjust ports if needed)
+      "http://localhost:4000", // local dev environment (adjust ports if needed)
       "http://localhost:3001",
       "http://localhost:3002",
       "http://localhost:3003",
+      "http://localhost:4000",
       "http://192.168.0.6:3000", // for local network testing
       "http://192.168.0.6:3001", // add more if needed
     ],
