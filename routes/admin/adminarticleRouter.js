@@ -34,7 +34,15 @@ export default adminarticleRouter;
 
 async function getallartilesHandler(req, res) {
   try {
-    const { pageno = 0, filterBy = {}, sortby = {}, search = "" } = req.body;
+    const {
+      pageno = 0,
+      filterBy = {},
+      sortby = {},
+      search = "",
+      categoryid = "",
+      subcategoryid = "",
+      authorid = "",
+    } = req.body;
     const limit = 10;
     const skip = pageno * limit;
 
@@ -53,7 +61,20 @@ async function getallartilesHandler(req, res) {
         { tags: { $regex: searchRegex } },
       ];
     }
+    
+    if (categoryid) {
+      query.categoryid = categoryid;
+    }
 
+    // Apply subcategory filter if provided
+    if (subcategoryid) {
+      query.subcategoryid = subcategoryid;
+    }
+
+    // Apply author filter if provided
+    if (authorid) {
+      query.authorid = authorid;
+    }
     // Apply filters
     if (filterBy && Object.keys(filterBy).length > 0) {
       query = {
@@ -137,7 +158,7 @@ async function createarticleHandler(req, res) {
       "subcategoryid",
       "subcategoryname description _id"
     )) || " ";
- 
+
     successResponse(res, "successfully added", articles);
   } catch (error) {
     console.log("error", error);
