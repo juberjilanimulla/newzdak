@@ -189,7 +189,8 @@ async function updatearticleHandler(req, res) {
       !updatedData.keywords ||
       !updatedData.content ||
       !updatedData.authorid ||
-      !updatedData.tags
+      !updatedData.tags ||
+      !updatedData.video
     ) {
       errorResponse(res, 404, "Some params are missing");
       return;
