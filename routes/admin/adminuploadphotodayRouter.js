@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { successResponse, errorResponse } from "../../helper/serverResponse.js";
-import advertisementmodel from "../../model/advertisementmodel.js";
+import photodaymodel from "../../model/photodaymodel.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -40,19 +40,19 @@ const upload = multer({
     if (isImage) cb(null, true);
     else cb(new Error("Only image files are allowed"));
   },
-}).single("image"); // Accept only one image
-const adminuploadadvertisementRouter = Router();
+}).single("photo"); // Accept only one image
+const adminuploadphotodayRouter = Router();
 
-adminuploadadvertisementRouter.post("/:id", (req, res) => {
+adminuploadphotodayRouter.post("/:id", (req, res) => {
   upload(req, res, async (err) => {
     if (err) return errorResponse(res, 400, err.message || "Upload error");
     if (!req.file) return errorResponse(res, 400, "No file uploaded");
 
     try {
-      const advertise = await advertisementmodel.findById(req.params.id);
-      if (!advertise) {
+      const photoday = await photodaymodel.findById(req.params.id);
+      if (!photoday) {
         fs.unlinkSync(req.file.path);
-        return errorResponse(res, 404, "advertise of the day not found");
+        return errorResponse(res, 404, "Photo of the day not found");
       }
 
       // Upload file to S3
@@ -60,7 +60,7 @@ adminuploadadvertisementRouter.post("/:id", (req, res) => {
       const fileName = `${req.params.id}-${Date.now()}-${
         req.file.originalname
       }`;
-      const s3Key = `advertise/${fileName}`;
+      const s3Key = `photoofday/${fileName}`;
 
       const uploadCommand = new PutObjectCommand({
         Bucket: process.env.AWS_BUCKET_NAME,
@@ -74,13 +74,13 @@ adminuploadadvertisementRouter.post("/:id", (req, res) => {
       const imageUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`;
 
       // Save single URL in the string field
-      advertise.imageurl = imageUrl;
-      await advertise.save();
+      photoday.photo = imageUrl;
+      await photoday.save();
 
       // Remove local file
       fs.unlinkSync(req.file.path);
 
-      return successResponse(res, "Image uploaded successfully", advertise);
+      return successResponse(res, "Image uploaded successfully", photoday);
     } catch (error) {
       //   console.error("Upload failed:", error.message);
       if (fs.existsSync(req.file?.path)) fs.unlinkSync(req.file.path);
@@ -89,4 +89,4 @@ adminuploadadvertisementRouter.post("/:id", (req, res) => {
   });
 });
 
-export default adminuploadadvertisementRouter;
+export default adminuploadphotodayRouter;
