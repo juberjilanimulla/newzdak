@@ -4,7 +4,7 @@ const articleSchema = new Schema(
   {
     title: { type: String },
     metatitle: { type: String },
-    image: [{ type: String, default: "" }], // cover image URL
+    image: { type: String, default: "" }, // cover image URL
     video: { type: String, default: "" }, // optional multiple images
     metadescription: String, // short excerpt for cards
     content: [
