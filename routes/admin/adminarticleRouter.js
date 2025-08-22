@@ -43,7 +43,7 @@ async function getallartilesHandler(req, res) {
       subcategoryid = "",
       authorid = "",
     } = req.body;
-    const limit = 10;
+    const limit = 2;
     const skip = pageno * limit;
 
     let query = {};
@@ -61,7 +61,7 @@ async function getallartilesHandler(req, res) {
         { tags: { $regex: searchRegex } },
       ];
     }
-    
+
     if (categoryid) {
       query.categoryid = categoryid;
     }

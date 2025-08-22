@@ -1,6 +1,8 @@
 import { Router } from "express";
 import articlemodel from "../../model/articlemodel.js";
 import { successResponse, errorResponse } from "../../helper/serverResponse.js";
+import categorymodel from "../../model/categorymodel.js";
+import subcategorymodel from "../../model/subcategorymodel.js";
 
 const userarticleRouter = Router();
 
@@ -8,6 +10,11 @@ userarticleRouter.get("/breaking", getbreakingnewsHandler);
 userarticleRouter.get("/editorspicks", geteditorspicksHandler);
 userarticleRouter.get("/national", getnationalHandler);
 userarticleRouter.get("/category", getcategoryHandler);
+userarticleRouter.get("/subcategory/:categoryid", getallsubcategoryHandler);
+userarticleRouter.get(
+  "/subcategory/:subcategoryid/articles",
+  getallarticlebysubcategoryHandler
+);
 
 export default userarticleRouter;
 
@@ -83,8 +90,35 @@ async function getnationalHandler(req, res) {
 
 async function getcategoryHandler(req, res) {
   try {
-    // const category
+    const category = await categorymodel.find();
+    if (!category.length) {
+      return errorResponse(res, 404, "no categories found ");
+    }
+    successResponse(res, "success", category);
   } catch (error) {
+    errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function getallsubcategoryHandler(req, res) {
+  try {
+    const { categoryid } = req.params;
+    const subcategory = await subcategorymodel.find({ categoryid });
+    if (!subcategory.length) {
+      return errorResponse(res, 404, "subcategories not found in the category");
+    }
+    successResponse(res, "success", subcategory);
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function getallarticlebysubcategoryHandler(req, res) {
+  try {
+    // const article = await 
+  } catch (error) {
+    console.log("error", error);
     errorResponse(res, 500, "internal server error");
   }
 }
