@@ -139,7 +139,14 @@ async function getallarticlebysubcategoryHandler(req, res) {
 
 async function getphotodayHandler(req, res) {
   try {
-    
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function getfeaturedvideoHandler(req, res) {
+  try {
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
