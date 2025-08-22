@@ -126,6 +126,7 @@ async function createarticleHandler(req, res) {
       subcategoryid,
       authorid,
       tags,
+      video,
     } = req.body;
     if (
       !title ||
@@ -149,6 +150,7 @@ async function createarticleHandler(req, res) {
       subcategoryid: subcategoryid || null,
       authorid,
       tags,
+      video,
     };
     const articles = await articlemodel.create(params);
     await articles.populate("authorid", "firstname lastname designation _id");
