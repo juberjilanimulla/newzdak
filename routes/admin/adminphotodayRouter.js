@@ -2,11 +2,7 @@ import { Router } from "express";
 import photodaymodel from "../../model/photodaymodel.js";
 import { successResponse, errorResponse } from "../../helper/serverResponse.js";
 import adminuploadphotodayRouter from "./adminuploadphotodayRouter.js";
-import {
-  S3Client,
-  DeleteObjectsCommand,
-  DeleteObjectCommand,
-} from "@aws-sdk/client-s3";
+import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
 
 const s3 = new S3Client({
   region: process.env.AWS_REGION,
@@ -23,7 +19,7 @@ adminphotodayRouter.post("/create", createphotodayHandler);
 adminphotodayRouter.put("/update", updatephotodayHandler);
 adminphotodayRouter.delete("/delete", deletephotodayHandler);
 adminphotodayRouter.use("/upload-photo", adminuploadphotodayRouter);
-adminphotodayRouter.delete("/singlephoto", deletesinglephotodayHandler);
+adminphotodayRouter.delete("/delete/singlephoto", deletesinglephotodayHandler);
 
 export default adminphotodayRouter;
 
@@ -124,33 +120,31 @@ async function deletephotodayHandler(req, res) {
     if (!_id) {
       return errorResponse(res, 400, "photo ID (_id) is required");
     }
-
-    // Find the article
     const photoday = await photodaymodel.findById(_id);
+
     if (!photoday) {
-      return errorResponse(res, 404, "photoday not found");
+      return errorResponse(res, 404, "Photo not found");
+    }
+    
+    let s3Key = null;
+    if (
+      typeof photoday.photo === "string" &&
+      photoday.photo.includes(".amazonaws.com/")
+    ) {
+      s3Key = photoday.photo.split(".amazonaws.com/")[1];
     }
 
-    // Extract S3 keys from image array
-    const s3Keys = (photoday.photo || [])
-      .filter(
-        (url) => typeof url === "string" && url.includes(".amazonaws.com/")
-      )
-      .map((url) => url.split(".amazonaws.com/")[1]);
-
-    // Delete from S3 if keys exist
-    if (s3Keys.length > 0) {
+    // Delete from S3 if key exists
+    if (s3Key) {
       await s3.send(
-        new DeleteObjectsCommand({
+        new DeleteObjectCommand({
           Bucket: process.env.AWS_BUCKET_NAME,
-          Delete: {
-            Objects: s3Keys.map((key) => ({ Key: key })),
-          },
+          Key: s3Key,
         })
       );
     }
 
-    // Finally delete the article from DB
+    // Finally delete the photoday from DB
     await photodaymodel.findByIdAndDelete(_id);
 
     return successResponse(
@@ -174,7 +168,6 @@ async function deletesinglephotodayHandler(req, res) {
       );
     }
 
-    // Find the photoday
     const photoday = await photodaymodel.findById(_id);
 
     if (!photoday) {
@@ -196,9 +189,10 @@ async function deletesinglephotodayHandler(req, res) {
       })
     );
 
-    // Remove image from DB array
-    photoday.photo = (photoday.photo || []).filter((url) => url !== photourl);
-    await photoday.save();
+    if (photoday.photo === photourl) {
+      photoday.photo = ""; // or null if you prefer
+      await photoday.save();
+    }
 
     return successResponse(res, "Image deleted successfully", photoday);
   } catch (error) {
