@@ -42,7 +42,7 @@ app.use(
       "http://localhost:4000",
       "http://localhost:3000",
       "http://192.168.0.6:3000", // for local network testing
-      "http://192.168.0.6:3001", // add more if needed
+      "http://192.168.0.11:3000", // add more if needed
     ],
     credentials: true, // make sure credentials (like cookies or tokens) are allowed
   })

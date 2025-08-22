@@ -116,7 +116,20 @@ async function getallsubcategoryHandler(req, res) {
 
 async function getallarticlebysubcategoryHandler(req, res) {
   try {
-    // const article = await 
+    const { subcategoryid } = req.params;
+    if (!subcategoryid) {
+      return errorResponse(res, 400, "some params missing");
+    }
+
+    const article = await articlemodel
+      .find({ subcategoryid })
+      .populate("categoryid", "categoryname") // Populate category name
+      .populate("subcategoryid", "subcategoryname") // Populate subcategory name
+      .exec();
+    if (!article.length) {
+      return errorResponse(res, 404, "article are not found");
+    }
+    successResponse(res, "Success", article);
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
