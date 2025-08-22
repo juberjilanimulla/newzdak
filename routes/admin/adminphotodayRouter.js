@@ -223,13 +223,6 @@ async function ispublishedphotoofdayHandler(req, res) {
       );
     }
 
-    if (published === true) {
-      // Step 1: Set all other blogs to featured = false
-      await photodaymodel.updateMany(
-        { published: true },
-        { $set: { published: false } }
-      );
-    }
     const updatedPhoto = await photodaymodel.findByIdAndUpdate(
       photoid,
       { published },
@@ -242,7 +235,7 @@ async function ispublishedphotoofdayHandler(req, res) {
     return successResponse(
       res,
       `Photoofday published status set to ${published}`,
-      updatedArticle
+      updatedPhoto
     );
   } catch (error) {
     console.log("error", error);

@@ -8,7 +8,7 @@ const photodaySchema = new Schema(
     },
     title: String,
     description: String,
-    ispublished: {
+    published: {
       type: Boolean,
       default: false,
     },
