@@ -32,6 +32,7 @@ const articleSchema = new Schema(
     breaking: { type: Boolean, default: false },
     editorspicks: { type: Boolean, default: false },
     published: { type: Boolean, default: false },
+    breakingvideo: { type: Boolean, default: false },
     tags: String,
   },
   { timestamps: true, versionKey: false }

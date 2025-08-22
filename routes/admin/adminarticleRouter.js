@@ -25,6 +25,7 @@ adminarticleRouter.post("/breaking", breakingarticleHandler);
 adminarticleRouter.post("/featured", featuredarticleHandler);
 adminarticleRouter.post("/published", publishedarticleHandler);
 adminarticleRouter.post("/videofeatured", videofeaturedHandler);
+adminarticleRouter.post("/breakingvideo", breadkingvideoHandler);
 
 export default adminarticleRouter;
 
@@ -492,6 +493,47 @@ async function videofeaturedHandler(req, res) {
     return successResponse(
       res,
       "Article featured status updated successfully",
+      updatedArticle
+    );
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function breadkingvideoHandler(req, res) {
+  try {
+    const { breakingvideo, articleid } = req.body;
+
+    if (!articleid) {
+      return errorResponse(res, 400, "article ID is missing in URL params");
+    }
+
+    const existingArticle = await articlemodel.findById({ _id: articleid });
+    if (!existingArticle) {
+      return errorResponse(res, 404, "Article not found");
+    }
+
+    if (typeof breakingvideo !== "boolean") {
+      return errorResponse(
+        res,
+        400,
+        "breakingvideo must be a boolean (true/false)"
+      );
+    }
+
+    const updatedArticle = await articlemodel.findByIdAndUpdate(
+      articleid,
+      { breakingvideo },
+      { new: true }
+    );
+    if (!updatedArticle) {
+      return errorResponse(res, 404, "Article not found");
+    }
+
+    return successResponse(
+      res,
+      "Article breakingvideo status updated successfully",
       updatedArticle
     );
   } catch (error) {
