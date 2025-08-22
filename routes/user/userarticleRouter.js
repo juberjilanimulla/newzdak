@@ -15,7 +15,7 @@ userarticleRouter.get(
   "/subcategory/:subcategoryid/articles",
   getallarticlebysubcategoryHandler
 );
-
+userarticleRouter.get("/photoofday", getphotodayHandler);
 
 export default userarticleRouter;
 
@@ -131,6 +131,15 @@ async function getallarticlebysubcategoryHandler(req, res) {
       return errorResponse(res, 404, "article are not found");
     }
     successResponse(res, "Success", article);
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function getphotodayHandler(req, res) {
+  try {
+    
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");

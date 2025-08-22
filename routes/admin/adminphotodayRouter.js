@@ -20,6 +20,7 @@ adminphotodayRouter.put("/update", updatephotodayHandler);
 adminphotodayRouter.delete("/delete", deletephotodayHandler);
 adminphotodayRouter.use("/upload-photo", adminuploadphotodayRouter);
 adminphotodayRouter.delete("/delete/singlephoto", deletesinglephotodayHandler);
+adminphotodayRouter.post("/published", ispublishedphotoofdayHandler);
 
 export default adminphotodayRouter;
 
@@ -125,7 +126,7 @@ async function deletephotodayHandler(req, res) {
     if (!photoday) {
       return errorResponse(res, 404, "Photo not found");
     }
-    
+
     let s3Key = null;
     if (
       typeof photoday.photo === "string" &&
@@ -195,6 +196,54 @@ async function deletesinglephotodayHandler(req, res) {
     }
 
     return successResponse(res, "Image deleted successfully", photoday);
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function ispublishedphotoofdayHandler(req, res) {
+  try {
+    const { published, photoid } = req.body;
+
+    if (!photoid) {
+      return errorResponse(res, 400, "photo ID is missing in URL params");
+    }
+
+    const existingPhoto = await photodaymodel.findById({ _id: photoid });
+    if (!existingPhoto) {
+      return errorResponse(res, 404, "Photo not found");
+    }
+
+    if (typeof published !== "boolean") {
+      return errorResponse(
+        res,
+        400,
+        "published must be a boolean (true/false)"
+      );
+    }
+
+    if (published === true) {
+      // Step 1: Set all other blogs to featured = false
+      await photodaymodel.updateMany(
+        { published: true },
+        { $set: { published: false } }
+      );
+    }
+    const updatedPhoto = await photodaymodel.findByIdAndUpdate(
+      photoid,
+      { published },
+      { new: true }
+    );
+    if (!updatedPhoto) {
+      return errorResponse(res, 404, "Photo not found");
+    }
+
+    return successResponse(
+      res,
+      `Photoofday published status set to ${published}`,
+      updatedArticle
+    );
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");

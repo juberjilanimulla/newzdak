@@ -8,6 +8,10 @@ const photodaySchema = new Schema(
     },
     title: String,
     description: String,
+    ispublished: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true, versionKey: false }
 );
