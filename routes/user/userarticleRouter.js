@@ -16,6 +16,7 @@ userarticleRouter.get(
   getallarticlebysubcategoryHandler
 );
 
+
 export default userarticleRouter;
 
 async function getbreakingnewsHandler(req, res) {
