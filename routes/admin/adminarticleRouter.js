@@ -186,8 +186,7 @@ async function updatearticleHandler(req, res) {
       !updatedData.keywords ||
       !updatedData.content ||
       !updatedData.authorid ||
-      !updatedData.tags ||
-      !updatedData.video
+      !updatedData.tags
     ) {
       errorResponse(res, 404, "Some params are missing");
       return;
@@ -479,6 +478,21 @@ async function videofeaturedHandler(req, res) {
         400,
         "videofeatured must be a boolean (true/false)"
       );
+    }
+
+    if (videofeatured === true) {
+      // Count how many articles already have videofeatured = true
+      const featuredArticles = await articlemodel
+        .find({ videofeatured: true })
+        .sort({ updatedAt: 1 }); // oldest first (based on updatedAt)
+
+      if (featuredArticles.length >= 3) {
+        // Unset the oldest one (first in the sorted array)
+        const oldestArticle = featuredArticles[0];
+        await articlemodel.findByIdAndUpdate(oldestArticle._id, {
+          videofeatured: false,
+        });
+      }
     }
 
     const updatedArticle = await articlemodel.findByIdAndUpdate(

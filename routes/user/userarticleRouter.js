@@ -17,7 +17,7 @@ userarticleRouter.get(
   getallarticlebysubcategoryHandler
 );
 userarticleRouter.get("/photoofday", getphotodayHandler);
-userarticleRouter.get("/featuredvideo", getfeaturedvideoHandler);
+userarticleRouter.get("/videofeatured", getfeaturedvideoHandler);
 export default userarticleRouter;
 
 async function getbreakingnewsHandler(req, res) {
