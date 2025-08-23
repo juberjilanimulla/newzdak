@@ -10,11 +10,11 @@ export default userreadervoiceRouter;
 
 async function createreadervoiceHandler(req, res) {
   try {
-    const { name, email, title, message } = req.body;
-    if (!name || !email || !title || !message) {
+    const { name, email, topic, message } = req.body;
+    if (!name || !email || !topic || !message) {
       return errorResponse(res, 400, "some params are missing");
     }
-    const params = { name, email, title, message };
+    const params = { name, email, topic, message };
     const readervoice = await readervoicemodel.create(params);
     return successResponse(res, "success", readervoice);
   } catch (error) {
