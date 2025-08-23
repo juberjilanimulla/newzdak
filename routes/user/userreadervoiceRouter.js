@@ -5,6 +5,7 @@ import { successResponse, errorResponse } from "../../helper/serverResponse.js";
 const userreadervoiceRouter = Router();
 
 userreadervoiceRouter.post("/create", createreadervoiceHandler);
+userreadervoiceRouter.get("/", getreadervoiceHandler);
 
 export default userreadervoiceRouter;
 
@@ -25,6 +26,10 @@ async function createreadervoiceHandler(req, res) {
 
 async function getreadervoiceHandler(req, res) {
   try {
+    const readervoice = await readervoicemodel
+      .find({ published: true })
+      .sort({ createdAt: -1 });
+    successResponse(res, "success", readervoice);
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");

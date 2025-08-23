@@ -66,6 +66,37 @@ async function getallreadervoiceHandler(req, res) {
 
 async function publishedreadervoiceHandler(req, res) {
   try {
+    const { published, readervoiceid } = req.body;
+    if (!published || !readervoiceid) {
+      return errorResponse(res, 400, "some params are missing");
+    }
+    const readervoice = await readervoicemodel.find({ _id: readervoiceid });
+    if (!readervoice) {
+      return errorResponse(res, 404, "reader voice id not found");
+    }
+    if (typeof published !== "boolean") {
+      return errorResponse(
+        res,
+        400,
+        "published must be a boolean (true/false)"
+      );
+    }
+
+    const updatedReader = await readervoicemodel.findByIdAndUpdate(
+      readervoiceid,
+      { published },
+      { new: true }
+    );
+
+    if (!updatedReader) {
+      return errorResponse(res, 404, "Reader voice  not found");
+    }
+
+    return successResponse(
+      res,
+      "Reader voice approval status updated successfully",
+      updatedReader
+    );
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
