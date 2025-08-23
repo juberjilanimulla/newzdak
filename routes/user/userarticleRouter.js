@@ -18,6 +18,8 @@ userarticleRouter.get(
 );
 userarticleRouter.get("/photoofday", getphotodayHandler);
 userarticleRouter.get("/videofeatured", getfeaturedvideoHandler);
+userarticleRouter.get("/brandconnect", getbrandconnectHandler);
+
 export default userarticleRouter;
 
 async function getbreakingnewsHandler(req, res) {
@@ -29,11 +31,13 @@ async function getbreakingnewsHandler(req, res) {
       .sort({ createdAt: -1 });
 
     // Get all latest articles
-    const query = breaking ? { _id: { $ne: breaking._id } } : {};
+    const query = breaking
+      ? { _id: { $ne: breaking._id }, published: true }
+      : { published: true };
+
     const latest = await articlemodel
       .find(query)
       .populate("authorid", "firstname lastname designation _id")
-
       .sort({ createdAt: -1 });
     return successResponse(res, "Breaking and latest news fetched", {
       breaking,
@@ -159,6 +163,14 @@ async function getfeaturedvideoHandler(req, res) {
       .limit(3)
       .sort({ createdAt: -1 });
     return successResponse(res, "success", featuredvideo);
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function getbrandconnectHandler(req, res) {
+  try {
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
