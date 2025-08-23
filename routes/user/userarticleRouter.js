@@ -23,7 +23,7 @@ export default userarticleRouter;
 async function getbreakingnewsHandler(req, res) {
   try {
     const breaking = await articlemodel
-      .findOne({ breaking: true })
+      .findOne({ breaking: true, breakingvideo: true })
       .populate("authorid", "firstname lastname designation _id")
 
       .sort({ createdAt: -1 });
