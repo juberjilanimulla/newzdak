@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { errorResponse, successResponse } from "../../helper/serverResponse.js";
-import readervoicemodel from "../../model/radervoicemodel.js";
+import readervoicemodel from "../../model/readervoicemodel.js";
 
 const adminreadervoiceRouter = Router();
 

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import readervoicemodel from "../../model/radervoicemodel.js";
+import readervoicemodel from "../../model/readervoicemodel.js";
 import { successResponse, errorResponse } from "../../helper/serverResponse.js";
 
 const userreadervoiceRouter = Router();
@@ -17,6 +17,14 @@ async function createreadervoiceHandler(req, res) {
     const params = { name, email, topic, message };
     const readervoice = await readervoicemodel.create(params);
     return successResponse(res, "success", readervoice);
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function getreadervoiceHandler(req, res) {
+  try {
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
