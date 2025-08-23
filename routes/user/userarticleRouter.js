@@ -17,7 +17,7 @@ userarticleRouter.get(
   getallarticlebysubcategoryHandler
 );
 userarticleRouter.get("/photoofday", getphotodayHandler);
-
+userarticleRouter.get("/featuredvideo", getfeaturedvideoHandler);
 export default userarticleRouter;
 
 async function getbreakingnewsHandler(req, res) {
@@ -154,6 +154,11 @@ async function getphotodayHandler(req, res) {
 
 async function getfeaturedvideoHandler(req, res) {
   try {
+    const featuredvideo = await articlemodel
+      .find({ videofeatured: true })
+      .limit(3)
+      .sort({ createdAt: -1 });
+    return successResponse(res, "success", featuredvideo);
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
