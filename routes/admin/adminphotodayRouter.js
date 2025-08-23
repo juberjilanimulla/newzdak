@@ -27,7 +27,7 @@ export default adminphotodayRouter;
 async function getallphotodayHandler(req, res) {
   try {
     const { pageno = 0, filterBy = {}, sortby = {}, search = "" } = req.body;
-    const limit = 2;
+    const limit = 10;
     const skip = pageno * limit;
 
     let query = {};

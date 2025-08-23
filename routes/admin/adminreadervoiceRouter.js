@@ -6,6 +6,7 @@ const adminreadervoiceRouter = Router();
 
 adminreadervoiceRouter.post("/", getallreadervoiceHandler);
 adminreadervoiceRouter.post("/published", publishedreadervoiceHandler);
+adminreadervoiceRouter.delete("/delete", deletereadervoiceHandler);
 
 export default adminreadervoiceRouter;
 
@@ -67,7 +68,7 @@ async function getallreadervoiceHandler(req, res) {
 async function publishedreadervoiceHandler(req, res) {
   try {
     const { published, readervoiceid } = req.body;
-    if (!published || !readervoiceid) {
+    if (published === undefined || !readervoiceid) {
       return errorResponse(res, 400, "some params are missing");
     }
     const readervoice = await readervoicemodel.find({ _id: readervoiceid });
@@ -97,6 +98,25 @@ async function publishedreadervoiceHandler(req, res) {
       "Reader voice approval status updated successfully",
       updatedReader
     );
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function deletereadervoiceHandler(req, res) {
+  try {
+    const { _id } = req.body;
+    if (!_id) {
+      return errorResponse(res, 400, "readervoice _id is required");
+    }
+    const readervoice = await readervoicemodel.findById(_id);
+    if (!readervoice) {
+      return errorResponse(res, 404, "reader voice not found");
+    }
+
+    const deleted = await readervoicemodel.findByIdAndDelete({ _id: _id });
+    successResponse(res, "successfully deleted ");
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
