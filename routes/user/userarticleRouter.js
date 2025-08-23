@@ -3,6 +3,7 @@ import articlemodel from "../../model/articlemodel.js";
 import { successResponse, errorResponse } from "../../helper/serverResponse.js";
 import categorymodel from "../../model/categorymodel.js";
 import subcategorymodel from "../../model/subcategorymodel.js";
+import photodaymodel from "../../model/photodaymodel.js";
 
 const userarticleRouter = Router();
 
@@ -139,6 +140,11 @@ async function getallarticlebysubcategoryHandler(req, res) {
 
 async function getphotodayHandler(req, res) {
   try {
+    const photoofday = await photodaymodel
+      .find({ published: true })
+      .sort({ createdAt: -1 })
+      .limit(1);
+    successResponse(res, "success", photodaymodel);
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
