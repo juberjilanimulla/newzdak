@@ -142,9 +142,10 @@ async function getphotodayHandler(req, res) {
   try {
     const photoofday = await photodaymodel
       .find({ published: true })
-      .sort({ createdAt: -1 })
+      .sort({ updatedAt: -1 })
       .limit(1);
-    successResponse(res, "success", photodaymodel);
+
+    return successResponse(res, "success", photoofday);
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
