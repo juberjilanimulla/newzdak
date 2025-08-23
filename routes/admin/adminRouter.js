@@ -6,6 +6,7 @@ import admincategoryRouter from "./admincategoryRouter.js";
 import adminsubcategoryRouter from "./adminsubcategoryRouter.js";
 import adminphotodayRouter from "./adminphotodayRouter.js";
 import adminadvertisementRouter from "./adminadvertisementRouter.js";
+import adminreadervoiceRouter from "./adminreadervoiceRouter.js";
 
 const adminRouter = Router();
 
@@ -17,3 +18,4 @@ adminRouter.use("/category", admincategoryRouter);
 adminRouter.use("/subcategory", adminsubcategoryRouter);
 adminRouter.use("/photoday", adminphotodayRouter);
 adminRouter.use("/advertisement", adminadvertisementRouter);
+adminRouter.use("/readervoice", adminreadervoiceRouter);

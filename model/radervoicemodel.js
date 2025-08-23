@@ -6,6 +6,10 @@ const readervoiceSchema = new Schema(
     email: String,
     topic: String,
     message: String,
+    published: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true, versionKey: false }
 );
