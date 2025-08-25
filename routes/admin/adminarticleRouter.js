@@ -20,7 +20,7 @@ adminarticleRouter.put("/update", updatearticleHandler);
 adminarticleRouter.delete("/delete", deletearticleHandler);
 adminarticleRouter.use("/upload", adminuploadarticleRouter);
 adminarticleRouter.delete("/singleimage", deletesinglearticleHandler);
-adminarticleRouter.post("/editorspicks", editorspicksarticleHandler);
+// adminarticleRouter.post("/editorspicks", editorspicksarticleHandler);
 adminarticleRouter.post("/breaking", breakingarticleHandler);
 adminarticleRouter.post("/featured", featuredarticleHandler);
 adminarticleRouter.post("/published", publishedarticleHandler);
@@ -295,59 +295,59 @@ async function deletesinglearticleHandler(req, res) {
   }
 }
 
-async function editorspicksarticleHandler(req, res) {
-  try {
-    const { editorspicks, articleid } = req.body;
+// async function editorspicksarticleHandler(req, res) {
+//   try {
+//     const { editorspicks, articleid } = req.body;
 
-    if (!articleid) {
-      return errorResponse(res, 400, "article ID is missing in URL params");
-    }
+//     if (!articleid) {
+//       return errorResponse(res, 400, "article ID is missing in URL params");
+//     }
 
-    const existingArticle = await articlemodel.findById({ _id: articleid });
-    if (!existingArticle) {
-      return errorResponse(res, 404, "Article not found");
-    }
+//     const existingArticle = await articlemodel.findById({ _id: articleid });
+//     if (!existingArticle) {
+//       return errorResponse(res, 404, "Article not found");
+//     }
 
-    if (typeof editorspicks !== "boolean") {
-      return errorResponse(
-        res,
-        400,
-        "editorspicks must be a boolean (true/false)"
-      );
-    }
+//     if (typeof editorspicks !== "boolean") {
+//       return errorResponse(
+//         res,
+//         400,
+//         "editorspicks must be a boolean (true/false)"
+//       );
+//     }
 
-    if (editorspicks === true) {
-      // Count how many articles are already marked as editorspicks
-      const pickedArticles = await articlemodel
-        .find({ editorspicks: true })
-        .sort({ updatedAt: 1 }); // oldest first
+//     if (editorspicks === true) {
+//       // Count how many articles are already marked as editorspicks
+//       const pickedArticles = await articlemodel
+//         .find({ editorspicks: true })
+//         .sort({ updatedAt: 1 }); // oldest first
 
-      if ((pickedArticles.length = 3)) {
-        // Unset the oldest one
-        const oldest = pickedArticles[0];
-        await articlemodel.findByIdAndUpdate(oldest._id, {
-          $set: { editorspicks: false },
-        });
-      }
-    }
+//       if (pickedArticles.length <= 3) {
+//         // Unset the oldest one
+//         const oldest = pickedArticles[0];
+//         await articlemodel.findByIdAndUpdate(oldest._id, {
+//           $set: { editorspicks: false },
+//         });
+//       }
+//     }
 
-    // Update the requested article
-    const updatedArticle = await articlemodel.findByIdAndUpdate(
-      articleid,
-      { editorspicks },
-      { new: true }
-    );
+//     // Update the requested article
+//     const updatedArticle = await articlemodel.findByIdAndUpdate(
+//       articleid,
+//       { editorspicks },
+//       { new: true }
+//     );
 
-    return successResponse(
-      res,
-      "Article approval status updated successfully",
-      updatedArticle
-    );
-  } catch (error) {
-    console.log("error", error);
-    errorResponse(res, 500, "internal server error");
-  }
-}
+//     return successResponse(
+//       res,
+//       "Article approval status updated successfully",
+//       updatedArticle
+//     );
+//   } catch (error) {
+//     console.log("error", error);
+//     errorResponse(res, 500, "internal server error");
+//   }
+// }
 
 async function breakingarticleHandler(req, res) {
   try {
