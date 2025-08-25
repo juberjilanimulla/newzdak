@@ -315,14 +315,14 @@ async function editorspicksarticleHandler(req, res) {
         "editorspicks must be a boolean (true/false)"
       );
     }
-    
-  if (editorspicks === true) {
+
+    if (editorspicks === true) {
       // Count how many articles are already marked as editorspicks
       const pickedArticles = await articlemodel
         .find({ editorspicks: true })
         .sort({ updatedAt: 1 }); // oldest first
 
-      if (pickedArticles.length >= 3) {
+      if (pickedArticles.length >= 2) {
         // Unset the oldest one
         const oldest = pickedArticles[0];
         await articlemodel.findByIdAndUpdate(oldest._id, {
@@ -337,7 +337,6 @@ async function editorspicksarticleHandler(req, res) {
       { editorspicks },
       { new: true }
     );
-
 
     return successResponse(
       res,
