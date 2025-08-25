@@ -21,6 +21,7 @@ userarticleRouter.get("/videofeatured", getfeaturedvideoHandler);
 userarticleRouter.get("/brandconnect", getbrandconnectHandler);
 userarticleRouter.get("/singlearticle/:id", singlearticleHandler);
 userarticleRouter.get("/breakingvideo", breadkingvideoHandler);
+userarticleRouter.get("/allcategory", getcategorieswithsubcategoriesHandler);
 
 export default userarticleRouter;
 
@@ -228,5 +229,40 @@ async function breadkingvideoHandler(req, res) {
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function getcategorieswithsubcategoriesHandler(req, res) {
+  try {
+    // Fetch all categories
+    const categories = await categorymodel.find();
+
+    if (!categories.length) {
+      return errorResponse(res, 404, "No categories found");
+    }
+
+    // Build category + subcategories structure
+    const data = await Promise.all(
+      categories.map(async (cat) => {
+        const subcategories = await subcategorymodel.find({
+          categoryid: cat._id,
+        });
+
+        return {
+          _id: cat._id,
+          category: cat.categoryname, // 👈 category name
+          slug: cat.slug, // 👈 category slug
+          subcategories: subcategories.map((sub) => ({
+            _id: sub._id,
+            subcategoryname: sub.subcategoryname, // 👈 subcategory name
+            slug: sub.slug, // 👈 subcategory slug
+          })),
+        };
+      })
+    );
+    return successResponse(res, "success", data);
+  } catch (error) {
+    console.log("error", error);
+    return errorResponse(res, 500, "internal server error");
   }
 }
