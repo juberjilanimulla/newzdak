@@ -20,6 +20,7 @@ userarticleRouter.get("/photoofday", getphotodayHandler);
 userarticleRouter.get("/videofeatured", getfeaturedvideoHandler);
 userarticleRouter.get("/brandconnect", getbrandconnectHandler);
 userarticleRouter.get("/singlearticle/:id", singlearticleHandler);
+userarticleRouter.get("/breakingvideo", breadkingvideoHandler);
 
 export default userarticleRouter;
 
@@ -210,5 +211,22 @@ async function singlearticleHandler(req, res) {
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "intenal server error");
+  }
+}
+
+async function breadkingvideoHandler(req, res) {
+  try {
+    const breakingvideo = await articlemodel
+      .findOne({ breakingvideo: true, published: true })
+      .populate("authorid", "firstname lastname designation _id")
+      .sort({ createdAt: -1 });
+
+    //  Send response
+    return successResponse(res, "Breaking video and latest news fetched", {
+      breakingvideo,
+    });
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal server error");
   }
 }

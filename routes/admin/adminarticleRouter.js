@@ -536,6 +536,13 @@ async function breadkingvideoHandler(req, res) {
         "breakingvideo must be a boolean (true/false)"
       );
     }
+    if (breakingvideo === true) {
+      // Step 1: Reset all other breakingvideo to false
+      await articlemodel.updateMany(
+        { breakingvideo: true },
+        { $set: { breakingvideo: false } }
+      );
+    }
 
     const updatedArticle = await articlemodel.findByIdAndUpdate(
       articleid,
