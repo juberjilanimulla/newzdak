@@ -322,7 +322,7 @@ async function editorspicksarticleHandler(req, res) {
         .find({ editorspicks: true })
         .sort({ updatedAt: 1 }); // oldest first
 
-      if (pickedArticles.length >= 2) {
+      if ((pickedArticles.length = 3)) {
         // Unset the oldest one
         const oldest = pickedArticles[0];
         await articlemodel.findByIdAndUpdate(oldest._id, {
