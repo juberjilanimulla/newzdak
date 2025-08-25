@@ -55,7 +55,7 @@ async function getbreakingnewsHandler(req, res) {
 async function geteditorspicksHandler(req, res) {
   try {
     const editorspicks = await articlemodel
-      .find({ editorspicks: true })
+      .find({ editorspicks: true, published: true })
       .populate("authorid", "firstname lastname designation _id")
       .sort({ createdAt: -1 })
       .limit(3);
@@ -250,12 +250,12 @@ async function getcategorieswithsubcategoriesHandler(req, res) {
 
         return {
           _id: cat._id,
-          category: cat.categoryname, // 👈 category name
-          slug: cat.slug, // 👈 category slug
+          category: cat.categoryname,
+          slug: cat.slug,
           subcategories: subcategories.map((sub) => ({
             _id: sub._id,
-            subcategoryname: sub.subcategoryname, // 👈 subcategory name
-            slug: sub.slug, // 👈 subcategory slug
+            subcategoryname: sub.subcategoryname,
+            slug: sub.slug,
           })),
         };
       })

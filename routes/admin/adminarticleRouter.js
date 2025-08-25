@@ -315,16 +315,29 @@ async function editorspicksarticleHandler(req, res) {
         "editorspicks must be a boolean (true/false)"
       );
     }
+    
+  if (editorspicks === true) {
+      // Count how many articles are already marked as editorspicks
+      const pickedArticles = await articlemodel
+        .find({ editorspicks: true })
+        .sort({ updatedAt: 1 }); // oldest first
 
+      if (pickedArticles.length >= 3) {
+        // Unset the oldest one
+        const oldest = pickedArticles[0];
+        await articlemodel.findByIdAndUpdate(oldest._id, {
+          $set: { editorspicks: false },
+        });
+      }
+    }
+
+    // Update the requested article
     const updatedArticle = await articlemodel.findByIdAndUpdate(
       articleid,
       { editorspicks },
       { new: true }
     );
 
-    if (!updatedArticle) {
-      return errorResponse(res, 404, "Article not found");
-    }
 
     return successResponse(
       res,
