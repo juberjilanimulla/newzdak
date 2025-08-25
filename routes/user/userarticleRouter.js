@@ -26,7 +26,7 @@ export default userarticleRouter;
 async function getbreakingnewsHandler(req, res) {
   try {
     const breaking = await articlemodel
-      .findOne({ breaking: true, breakingvideo: true })
+      .find({ breaking: true })
       .populate("authorid", "firstname lastname designation _id")
 
       .sort({ createdAt: -1 });
@@ -39,7 +39,8 @@ async function getbreakingnewsHandler(req, res) {
     const latest = await articlemodel
       .find(query)
       .populate("authorid", "firstname lastname designation _id")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .limit(10);
     return successResponse(res, "Breaking and latest news fetched", {
       breaking,
       latest,
