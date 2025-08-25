@@ -140,7 +140,7 @@ async function getallarticlebysubcategoryHandler(req, res) {
       return errorResponse(res, 400, "subcategory ID is missing");
     }
 
-    let query = { subcategoryid, published: true, featured: true };
+    let query = { subcategoryid, published: true };
 
     //
     if (search.trim()) {
@@ -160,14 +160,19 @@ async function getallarticlebysubcategoryHandler(req, res) {
       };
     }
 
-    //
-    const sortBy =
-      Object.keys(sortby).length !== 0
-        ? Object.keys(sortby).reduce((acc, key) => {
-            acc[key] = sortby[key] === "asc" ? 1 : -1;
-            return acc;
-          }, {})
-        : { createdAt: -1 };
+    let sortBy = { featured: -1 }; // put featured:true articles first
+
+    if (Object.keys(sortby).length !== 0) {
+      sortBy = {
+        featured: -1, // ensures featured always comes first
+        ...Object.keys(sortby).reduce((acc, key) => {
+          acc[key] = sortby[key] === "asc" ? 1 : -1;
+          return acc;
+        }, {}),
+      };
+    } else {
+      sortBy = { featured: -1, createdAt: -1 };
+    }
 
     //
     const articles = await articlemodel
