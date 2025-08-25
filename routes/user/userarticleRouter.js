@@ -55,7 +55,12 @@ async function getbreakingnewsHandler(req, res) {
 async function geteditorspicksHandler(req, res) {
   try {
     const editorspicks = await articlemodel
-      .find({ editorspicks: true, published: true })
+      .find({ published: true })
+      .populate({
+        path: "subcategoryid",
+        match: { subcategoryname: "Editors Picks" }, // match directly
+        select: "subcategoryname slug _id", // only required fields
+      })
       .populate("authorid", "firstname lastname designation _id")
       .sort({ createdAt: -1 })
       .limit(3);
