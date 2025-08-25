@@ -171,24 +171,16 @@ async function getfeaturedvideoHandler(req, res) {
 
 async function getbrandconnectHandler(req, res) {
   try {
-    const subcategories = [
-      "Success Stories",
-      "Startup Spotlights",
-      "Interviews & Insights",
-    ];
+    const articles = await articlemodel
+      .find({
+        "categoryid.categoryname": "Brand Connect",
+        published: true,
+      })
+      .populate("authorid", "firstname lastname designation _id")
+      .sort({ createdAt: -1 });
+    //  You can adjust limit per subcategory
 
-    const brandconnect = {};
-
-    for (const sub of subcategories) {
-      const articles = await articlemodel
-        .find({ "categoryid.name": "Brand Connect", "subcategoryid.name": sub })
-        .populate("authorid", "firstname lastname designation _id")
-        .sort({ createdAt: -1 })
-        .limit(3);
-
-      brandconnect[sub] = articles;
-    }
-    return successResponse(res, "success", brandconnect);
+    return successResponse(res, "success", articles);
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
