@@ -26,6 +26,7 @@ adminarticleRouter.post("/featured", featuredarticleHandler);
 adminarticleRouter.post("/published", publishedarticleHandler);
 adminarticleRouter.post("/videofeatured", videofeaturedHandler);
 adminarticleRouter.post("/breakingvideo", breadkingvideoHandler);
+adminarticleRouter.get("/singlearticle/:id", singlearticleHandler);
 
 export default adminarticleRouter;
 
@@ -553,5 +554,30 @@ async function breadkingvideoHandler(req, res) {
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function singlearticleHandler(req, res) {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return errorResponse(res, 400, "Article ID is required");
+    }
+
+    // Fetch article with relations
+    const article = await articlemodel
+      .findById(id)
+      .populate("authorid", "firstname lastname designation _id") // author details
+      .populate("categoryid", "categoryname ") // category details
+      .populate("subcategoryid", "subcategoryname "); // subcategory details
+
+    if (!article) {
+      return errorResponse(res, 404, "Article not found");
+    }
+    return successResponse(res, "success", article);
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "intenal server error");
   }
 }
