@@ -140,7 +140,7 @@ async function getallarticlebysubcategoryHandler(req, res) {
       return errorResponse(res, 400, "subcategory ID is missing");
     }
 
-    let query = { subcategoryid };
+    let query = { subcategoryid, published: true };
 
     //
     if (search.trim()) {

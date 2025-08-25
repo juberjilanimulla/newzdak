@@ -401,7 +401,7 @@ async function featuredarticleHandler(req, res) {
       return errorResponse(res, 400, "article ID is missing in URL params");
     }
 
-    const existingArticle = await articlemodel.findById({ _id: articleid });
+    const existingArticle = await articlemodel.findById(articleid);
     if (!existingArticle) {
       return errorResponse(res, 404, "Article not found");
     }
@@ -410,18 +410,32 @@ async function featuredarticleHandler(req, res) {
       return errorResponse(res, 400, "featured must be a boolean (true/false)");
     }
 
+    if (featured === true) {
+      // Count how many featured articles are already in this subcategory
+      const featuredArticles = await articlemodel
+        .find({
+          subcategoryid: existingArticle.subcategoryid,
+          featured: true,
+        })
+        .sort({ updatedAt: 1 }); // oldest first
+
+      if (featuredArticles.length >= 3) {
+        // un-feature the oldest one
+        const oldest = featuredArticles[0];
+        await articlemodel.findByIdAndUpdate(oldest._id, { featured: false });
+      }
+    }
+
+    // Update the requested article
     const updatedArticle = await articlemodel.findByIdAndUpdate(
       articleid,
       { featured },
       { new: true }
     );
-    if (!updatedArticle) {
-      return errorResponse(res, 404, "Article not found");
-    }
 
     return successResponse(
       res,
-      "Article featured status updated successfully",
+      `Article featured status set to ${featured}`,
       updatedArticle
     );
   } catch (error) {
