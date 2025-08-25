@@ -28,8 +28,8 @@ async function getallsubcategoryHandler(req, res) {
 // Create subcategory
 async function createsubcategoryHandler(req, res) {
   try {
-    const { subcategoryname, categoryid } = req.body;
-    if (!subcategoryname || !categoryid) {
+    const { subcategoryname, categoryid, slug } = req.body;
+    if (!subcategoryname || !categoryid || !slug) {
       return errorResponse(res, 400, "some params are missing");
     }
 
@@ -45,7 +45,7 @@ async function createsubcategoryHandler(req, res) {
       );
     }
 
-    const params = { subcategoryname, categoryid };
+    const params = { subcategoryname, categoryid, slug };
     const subcategory = await subcategorymodel.create(params);
 
     successResponse(res, "subcategory created successfully", subcategory);
@@ -63,7 +63,11 @@ async function updatesubcategoryHandler(req, res) {
       return errorResponse(res, 404, "subcategory_id is required");
     }
 
-    if (!updatedData.subcategoryname || !updatedData.categoryid) {
+    if (
+      !updatedData.subcategoryname ||
+      !updatedData.categoryid ||
+      !updatedData.slug
+    ) {
       return errorResponse(res, 400, "some params are missing");
     }
     const subcategoryid = await subcategorymodel.findById({ _id: _id });

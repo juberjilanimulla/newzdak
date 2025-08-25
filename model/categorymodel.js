@@ -3,7 +3,7 @@ import { Schema, model } from "mongoose";
 const categorySchema = new Schema(
   {
     categoryname: { type: String },
-    slug: { type: String },
+    slug: { type: String, default: "" },
     description: String,
     order: { type: Number },
   },

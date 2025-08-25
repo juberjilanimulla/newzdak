@@ -28,7 +28,6 @@ async function getbreakingnewsHandler(req, res) {
     const breaking = await articlemodel
       .find({ breaking: true })
       .populate("authorid", "firstname lastname designation _id")
-
       .sort({ createdAt: -1 });
 
     // Get all latest articles

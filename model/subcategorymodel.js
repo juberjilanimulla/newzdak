@@ -4,6 +4,7 @@ const subcategorySchema = new Schema(
   {
     subcategoryname: { type: String }, // e.g. City News, Crime & Safety
     description: { type: String }, // small text about subcategory
+    slug: { type: String, default: "" },
     categoryid: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "category", // linked to category model
