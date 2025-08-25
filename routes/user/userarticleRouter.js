@@ -12,7 +12,7 @@ userarticleRouter.get("/editorspicks", geteditorspicksHandler);
 userarticleRouter.get("/national", getnationalHandler);
 userarticleRouter.get("/category", getcategoryHandler);
 userarticleRouter.get("/subcategory/:categoryid", getallsubcategoryHandler);
-userarticleRouter.get(
+userarticleRouter.post(
   "/subcategory/:subcategoryid/articles",
   getallarticlebysubcategoryHandler
 );
@@ -131,19 +131,65 @@ async function getallsubcategoryHandler(req, res) {
 async function getallarticlebysubcategoryHandler(req, res) {
   try {
     const { subcategoryid } = req.params;
+    const { pageno = 0, filterBy = {}, sortby = {}, search = "" } = req.body;
+
+    const limit = 20;
+    const skip = pageno * limit;
+
     if (!subcategoryid) {
-      return errorResponse(res, 400, "some params missing");
+      return errorResponse(res, 400, "subcategory ID is missing");
     }
 
-    const article = await articlemodel
-      .find({ subcategoryid })
-      .populate("categoryid", "categoryname") // Populate category name
-      .populate("subcategoryid", "subcategoryname") // Populate subcategory name
-      .exec();
-    if (!article.length) {
-      return errorResponse(res, 404, "article are not found");
+    let query = { subcategoryid };
+
+    //
+    if (search.trim()) {
+      const searchRegex = new RegExp(search.trim(), "i");
+      query.$or = [
+        { title: { $regex: searchRegex } },
+        { description: { $regex: searchRegex } },
+        { content: { $regex: searchRegex } }, // optional if you have article content field
+      ];
     }
-    successResponse(res, "Success", article);
+
+    //
+    if (filterBy && Object.keys(filterBy).length > 0) {
+      query = {
+        ...query,
+        ...filterBy,
+      };
+    }
+
+    //
+    const sortBy =
+      Object.keys(sortby).length !== 0
+        ? Object.keys(sortby).reduce((acc, key) => {
+            acc[key] = sortby[key] === "asc" ? 1 : -1;
+            return acc;
+          }, {})
+        : { createdAt: -1 };
+
+    //
+    const articles = await articlemodel
+      .find(query)
+      .populate("categoryid", "categoryname")
+      .populate("subcategoryid", "subcategoryname")
+      .sort(sortBy)
+      .skip(skip)
+      .limit(limit);
+
+    const totalCount = await articlemodel.countDocuments(query);
+    const totalPages = Math.ceil(totalCount / limit);
+
+    if (!articles.length) {
+      return errorResponse(res, 404, "No articles found");
+    }
+
+    return successResponse(res, "Success", {
+      articles,
+      totalPages,
+      totalCount,
+    });
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
