@@ -27,6 +27,7 @@ adminadvertisementRouter.delete(
   "/singledelete",
   singledeleteadvertisementHandler
 );
+adminadvertisementRouter.post("/isactive", isactiveadvertisementHandler);
 
 export default adminadvertisementRouter;
 
@@ -205,6 +206,41 @@ async function singledeleteadvertisementHandler(req, res) {
     await advertise.save();
 
     return successResponse(res, "Image deleted successfully", advertise);
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function isactiveadvertisementHandler(req, res) {
+  try {
+    const { advertiseid, isactive } = req.body;
+    if (!advertiseid || !isactive) {
+      return errorResponse(res, 400, "some params are missing");
+    }
+    const advertise = await advertisementmodel.findById({ _id: advertiseid });
+    if (!advertise) {
+      return errorResponse(res, 404, "advertise not found");
+    }
+
+    if (typeof isactive !== "boolean") {
+      return errorResponse(res, 400, "isactive must be a boolean (true/false)");
+    }
+
+    const updateadvertise = await advertisementmodel.findByIdAndUpdate(
+      advertiseid,
+      { isactive },
+      { new: true }
+    );
+    if (!updateadvertise) {
+      return errorResponse(res, 404, "advertise not found");
+    }
+
+    return successResponse(
+      res,
+      `Photoofday published status set to ${isactive}`,
+      updateadvertise
+    );
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");

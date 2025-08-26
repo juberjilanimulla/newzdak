@@ -15,7 +15,7 @@ const advertisementSchema = new Schema(
       default: "",
     },
     position: { type: String }, // e.g., "homepage-top", "article-right", etc.
-    isActive: { type: Boolean, default: false },
+    isactive: { type: Boolean, default: false },
   },
   { timestamps: true, versionKey: false }
 );
