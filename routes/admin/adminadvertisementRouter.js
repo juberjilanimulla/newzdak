@@ -215,7 +215,7 @@ async function singledeleteadvertisementHandler(req, res) {
 async function isactiveadvertisementHandler(req, res) {
   try {
     const { advertiseid, isactive } = req.body;
-    if (!advertiseid || !isactive) {
+    if (!advertiseid) {
       return errorResponse(res, 400, "some params are missing");
     }
     const advertise = await advertisementmodel.findById({ _id: advertiseid });
