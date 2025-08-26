@@ -222,7 +222,7 @@ async function getphotodayHandler(req, res) {
 async function getfeaturedvideoHandler(req, res) {
   try {
     const featuredvideo = await articlemodel
-      .find({ videofeatured: true })
+      .find({ videofeatured: true, published: true })
       .limit(3)
       .sort({ createdAt: -1 });
     return successResponse(res, "success", featuredvideo);
