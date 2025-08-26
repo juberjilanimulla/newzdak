@@ -18,7 +18,7 @@ userarticleRouter.post(
 );
 userarticleRouter.get("/photoofday", getphotodayHandler);
 userarticleRouter.get("/videofeatured", getfeaturedvideoHandler);
-userarticleRouter.get("/brandconnect", getbrandconnectHandler);
+userarticleRouter.get("/brandconnect/:id", getbrandconnectHandler);
 userarticleRouter.get("/singlearticle/:id", singlearticleHandler);
 userarticleRouter.get("/breakingvideo", breadkingvideoHandler);
 userarticleRouter.get("/allcategory", getcategorieswithsubcategoriesHandler);
@@ -230,16 +230,36 @@ async function getfeaturedvideoHandler(req, res) {
 
 async function getbrandconnectHandler(req, res) {
   try {
-    const articles = await articlemodel
-      .find({
-        "categoryid.categoryname": "Brand Connect",
-        published: true,
-      })
-      .populate("authorid", "firstname lastname designation _id")
-      .sort({ createdAt: -1 });
-    //  You can adjust limit per subcategory
+    const { id } = req.parmas;
+    if (!id) {
+      return errorResponse(res, 400, "some params are missing");
+    }
+    const subcategories = await subcategorymodel.find({ categoryid: id });
 
-    return successResponse(res, "success", articles);
+    if (!subcategories || subcategories.length === 0) {
+      return successResponse(res, "No subcategories found", []);
+    }
+
+    // For each subcategory fetch the latest article
+    const result = await Promise.all(
+      subcategories.map(async (subcat) => {
+        const latestArticle = await articlemodel
+          .findOne({
+            categoryid: id,
+            subcategoryid: subcat._id,
+            published: true,
+          })
+          .populate("authorid", "firstname lastname designation _id")
+          .sort({ createdAt: -1 });
+
+        return {
+          subcategoryid: subcat._id,
+          subcategoryname: subcat.name,
+          articles: latestArticle ? [latestArticle] : [],
+        };
+      })
+    );
+    return successResponse(res, "success", result);
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
