@@ -22,6 +22,10 @@ userarticleRouter.get("/brandconnect/:id", getbrandconnectHandler);
 userarticleRouter.get("/singlearticle/:id", singlearticleHandler);
 userarticleRouter.get("/breakingvideo", breadkingvideoHandler);
 userarticleRouter.get("/allcategory", getcategorieswithsubcategoriesHandler);
+userarticleRouter.post(
+  "/category/:categoryid/articles",
+  getallarticlesportcategoryHandler
+);
 
 export default userarticleRouter;
 
@@ -340,5 +344,72 @@ async function getcategorieswithsubcategoriesHandler(req, res) {
   } catch (error) {
     console.log("error", error);
     return errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function getallarticlesportcategoryHandler(req, res) {
+  try {
+    const { categoryid } = req.params;
+    const { pageno = 0, filterBy = {}, sortby = {}, search = "" } = req.body;
+
+    const limit = 20;
+    const skip = pageno * limit;
+
+    if (!categoryid) {
+      return errorResponse(res, 400, "category ID is missing");
+    }
+
+    let query = { categoryid, published: true };
+
+    // search
+    if (search.trim()) {
+      const searchRegex = new RegExp(search.trim(), "i");
+      query.$or = [
+        { title: { $regex: searchRegex } },
+        { description: { $regex: searchRegex } },
+        { content: { $regex: searchRegex } },
+      ];
+    }
+
+    // filters
+    if (filterBy && Object.keys(filterBy).length > 0) {
+      query = { ...query, ...filterBy };
+    }
+
+    // sorting
+    let sortBy = { featured: -1, createdAt: -1 };
+    if (Object.keys(sortby).length !== 0) {
+      sortBy = {
+        featured: -1,
+        ...Object.keys(sortby).reduce((acc, key) => {
+          acc[key] = sortby[key] === "asc" ? 1 : -1;
+          return acc;
+        }, {}),
+      };
+    }
+
+    // fetch articles
+    const articles = await articlemodel
+      .find(query)
+      .populate("categoryid", "categoryname")
+      .sort(sortBy)
+      .skip(skip)
+      .limit(limit);
+
+    const totalCount = await articlemodel.countDocuments(query);
+    const totalPages = Math.ceil(totalCount / limit);
+
+    if (!articles.length) {
+      return errorResponse(res, 404, "No articles found");
+    }
+
+    return successResponse(res, "Success", {
+      articles,
+      totalPages,
+      totalCount,
+    });
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal server error");
   }
 }
