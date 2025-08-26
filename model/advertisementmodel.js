@@ -8,7 +8,7 @@ const advertisementSchema = new Schema(
       // enum: ["banner", "sidebar", "footer", "article"],
       default: "",
     },
-    imageurl: { type: String, default: "" },
+    image: { type: String, default: "" },
     size: {
       type: String,
       // enum: ["small", "medium", "large"],

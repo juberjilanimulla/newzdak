@@ -74,7 +74,7 @@ adminuploadadvertisementRouter.post("/:id", (req, res) => {
       const imageUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`;
 
       // Save single URL in the string field
-      advertise.imageurl = imageUrl;
+      advertise.image = imageUrl;
       await advertise.save();
 
       // Remove local file
