@@ -287,6 +287,7 @@ async function deletesinglearticleHandler(req, res) {
       article.image = ""; // or null if you prefer
       await article.save();
     }
+    console.log("article", article);
 
     return successResponse(res, "Image deleted successfully", article);
   } catch (error) {

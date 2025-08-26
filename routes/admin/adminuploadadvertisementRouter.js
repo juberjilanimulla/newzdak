@@ -41,6 +41,7 @@ const upload = multer({
     else cb(new Error("Only image files are allowed"));
   },
 }).single("image"); // Accept only one image
+
 const adminuploadadvertisementRouter = Router();
 
 adminuploadadvertisementRouter.post("/:id", (req, res) => {
@@ -51,38 +52,33 @@ adminuploadadvertisementRouter.post("/:id", (req, res) => {
     try {
       const advertise = await advertisementmodel.findById(req.params.id);
       if (!advertise) {
-        fs.unlinkSync(req.file.path);
-        return errorResponse(res, 404, "advertise of the day not found");
+        fs.unlinkSync(req.file.path); //
+        return errorResponse(res, 404, "Advertise not found");
       }
 
-      // Upload file to S3
-      const fileStream = createReadStream(req.file.path);
-      const fileName = `${req.params.id}-${Date.now()}-${
-        req.file.originalname
-      }`;
-      const s3Key = `advertise/${fileName}`;
+      const file = req.file;
+      const fileStream = createReadStream(file.path);
+      const fileName = `${req.params.id}-${Date.now()}-${file.originalname}`;
+      const s3Key = `advertisementimage/${fileName}`;
 
       const uploadCommand = new PutObjectCommand({
         Bucket: process.env.AWS_BUCKET_NAME,
         Key: s3Key,
         Body: fileStream,
-        ContentType: req.file.mimetype,
+        ContentType: file.mimetype,
       });
 
       await s3.send(uploadCommand);
 
       const imageUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`;
 
-      // Save single URL in the string field
       advertise.image = imageUrl;
       await advertise.save();
 
-      // Remove local file
-      fs.unlinkSync(req.file.path);
+      fs.unlinkSync(file.path);
 
       return successResponse(res, "Image uploaded successfully", advertise);
     } catch (error) {
-      //   console.error("Upload failed:", error.message);
       if (fs.existsSync(req.file?.path)) fs.unlinkSync(req.file.path);
       return errorResponse(res, 500, "Image upload failed");
     }

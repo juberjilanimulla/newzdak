@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { errorResponse, successResponse } from "../../helper/serverResponse.js";
-import adminuploadadvertisementRouter from "./adminuploadphotodayRouter.js";
 import advertisementmodel from "../../model/advertisementmodel.js";
 import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import adminuploadadvertisementRouter from "./adminuploadadvertisementRouter.js";
 
 const s3 = new S3Client({
   region: process.env.AWS_REGION,
@@ -18,14 +18,12 @@ adminadvertisementRouter.post("/", getalladvertisementHandler);
 adminadvertisementRouter.post("/create", createadvertisementHandler);
 adminadvertisementRouter.put("/update", updateadvertisementHandler);
 adminadvertisementRouter.delete("/delete", deleteadvertisementHandler);
-adminadvertisementRouter.use("/upload", adminuploadadvertisementRouter);
 adminadvertisementRouter.delete(
   "/singledelete",
   singledeleteadvertisementHandler
 );
 adminadvertisementRouter.post("/isactive", isactiveadvertisementHandler);
-adminadvertisementRouter.delete("/singledelete", singleimagedeleteHandler);
-
+adminadvertisementRouter.use("/upload", adminuploadadvertisementRouter);
 export default adminadvertisementRouter;
 
 async function getalladvertisementHandler(req, res) {
@@ -197,10 +195,10 @@ async function singledeleteadvertisementHandler(req, res) {
     );
 
     // Remove image from DB array
-    advertise.imageurl = (advertise.imageurl || []).filter(
-      (url) => url !== imageurl
-    );
-    await advertise.save();
+    if (advertise.image === imageurl) {
+      advertise.image = ""; // or null if you prefer
+      await advertise.save();
+    }
 
     return successResponse(res, "Image deleted successfully", advertise);
   } catch (error) {
@@ -238,50 +236,6 @@ async function isactiveadvertisementHandler(req, res) {
       `Photoofday published status set to ${isactive}`,
       updateadvertise
     );
-  } catch (error) {
-    console.log("error", error);
-    errorResponse(res, 500, "internal server error");
-  }
-}
-
-async function singleimagedeleteHandler(req, res) {
-  try {
-    const { _id, imageurl } = req.body;
-    if (!_id || !imageurl) {
-      return errorResponse(
-        res,
-        400,
-        "Article ID (_id) and imageurl are required"
-      );
-    }
-
-    const advertise = await advertisementmodel.findById(_id);
-
-    if (!advertise) {
-      return errorResponse(res, 404, "advertise not found");
-    }
-
-    // Extract S3 key from URL
-    const parts = imageurl.split(".amazonaws.com/");
-    if (parts.length < 2) {
-      return errorResponse(res, 400, "Invalid image URL");
-    }
-    const s3Key = parts[1];
-
-    // Delete from S3
-    await s3.send(
-      new DeleteObjectCommand({
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Key: s3Key,
-      })
-    );
-
-    if (advertise.image === imageurl) {
-      advertise.image = ""; // or null if you prefer
-      await advertise.save();
-    }
-
-    return successResponse(res, "Image deleted successfully", advertise);
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
