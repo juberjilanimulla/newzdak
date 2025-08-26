@@ -230,7 +230,7 @@ async function getfeaturedvideoHandler(req, res) {
 
 async function getbrandconnectHandler(req, res) {
   try {
-    const { id } = req.parmas;
+    const { id } = req.params;
     if (!id) {
       return errorResponse(res, 400, "some params are missing");
     }
