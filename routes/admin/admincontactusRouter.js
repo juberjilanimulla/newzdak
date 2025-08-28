@@ -4,7 +4,7 @@ import contactusmodel from "../../model/contactusmodel.js";
 
 const admincontactusRouter = Router();
 
-admincontactusRouter.get("/getall", getallcontactusHandler);
+admincontactusRouter.post("/getall", getallcontactusHandler);
 admincontactusRouter.delete("/delete", deletecontactusHandler);
 
 export default admincontactusRouter;
