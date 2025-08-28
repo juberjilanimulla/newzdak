@@ -5,8 +5,6 @@ import contactusmodel from "../../model/contactusmodel.js";
 const admincontactusRouter = Router();
 
 admincontactusRouter.get("/getall", getallcontactusHandler);
-admincontactusRouter.post("/create", createcontactusHandler);
-admincontactusRouter.put("/update", updatecontactusHandler);
 admincontactusRouter.delete("/delete", deletecontactusHandler);
 
 export default admincontactusRouter;
@@ -61,48 +59,6 @@ async function getallcontactusHandler(req, res) {
       contact,
       totalPages,
     });
-  } catch (error) {
-    console.log("error", error);
-    errorResponse(res, 500, "internal server error");
-  }
-}
-
-async function createcontactusHandler(req, res) {
-  try {
-    const { name, email, mobile, message } = req.body;
-    if (!name || !email || !mobile || !message) {
-      return errorResponse(res, 400, "some params are missing");
-    }
-    const params = { name, email, mobile, message };
-    const contact = await contactusmodel.create(params);
-    successResponse(res, "success", contact);
-  } catch (error) {
-    console.log("error", error);
-    errorResponse(res, 500, "internal server error");
-  }
-}
-
-async function updatecontactusHandler(req, res) {
-  try {
-    const { _id, ...updatedData } = req.body;
-    if (!_id) {
-      return errorResponse(res, 404, "contact _id is required");
-    }
-    const options = { new: true };
-    if (
-      !updatedData.name ||
-      !updatedData.email ||
-      !updatedData.mobile ||
-      !updatedData.message
-    ) {
-      return errorResponse(res, 400, "some params are missing");
-    }
-    const contact = await contactusmodel.findByIdAndUpdate(
-      _id,
-      updatedData,
-      options
-    );
-    successResponse(res, "successResponse updated", contact);
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
