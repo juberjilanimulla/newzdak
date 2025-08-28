@@ -78,27 +78,27 @@ async function geteditorspicksHandler(req, res) {
 
 async function getnationalHandler(req, res) {
   try {
-    const featured = await articlemodel
-      .findOne({ featured: true })
+    const nationalCategory = await categorymodel.findOne({
+      categoryname: "National",
+    });
+
+    if (!nationalCategory) {
+      return errorResponse(res, 404, "National category not found");
+    }
+
+    // 2. Get all articles under National category, grouped by subcategory
+    const articles = await articlemodel
+      .find({
+        categoryid: nationalCategory._id,
+        published: true,
+      })
+      .limit(10)
       .populate("authorid", "firstname lastname designation _id")
-
+      .populate("subcategoryid", "subcategoryname _id")
       .sort({ createdAt: -1 });
-
-    // 2. Get all articles from national category
-    const nationalArticles = await articlemodel
-      .find({})
-      .populate("authorid", "firstname lastname designation _id")
-
-      .sort({ createdAt: -1 });
-
-    //  Filter to only those under category "National"
-    const nationalOnly = nationalArticles.filter(
-      (art) => art.categoryid?.name?.toLowerCase() === "National"
-    );
 
     return successResponse(res, "National category fetched", {
-      featured,
-      all: nationalOnly,
+      articles,
     });
   } catch (error) {
     console.log("error", error);
