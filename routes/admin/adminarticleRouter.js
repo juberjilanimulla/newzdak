@@ -3,6 +3,7 @@ import { errorResponse, successResponse } from "../../helper/serverResponse.js";
 import articlemodel from "../../model/articlemodel.js";
 import adminuploadarticleRouter from "./adminuploadarticleRouter.js";
 import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import mongoose from "mongoose";
 
 const s3 = new S3Client({
   region: process.env.AWS_REGION,
@@ -57,6 +58,10 @@ async function getallartilesHandler(req, res) {
         { metatitle: { $regex: searchRegex } },
         { tags: { $regex: searchRegex } },
       ];
+
+      if (mongoose.Types.ObjectId.isValid(search.trim())) {
+        query.$or.push({ _id: new mongoose.Types.ObjectId(search.trim()) });
+      }
     }
 
     if (categoryid) {
