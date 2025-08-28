@@ -92,7 +92,7 @@ async function getnationalHandler(req, res) {
         categoryid: nationalCategory._id,
         published: true,
       })
-      .limit(10)
+      .limit(5)
       .populate("authorid", "firstname lastname designation _id")
       .populate("subcategoryid", "subcategoryname _id")
       .sort({ createdAt: -1 });
