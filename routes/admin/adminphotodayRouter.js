@@ -222,6 +222,13 @@ async function ispublishedphotoofdayHandler(req, res) {
         "published must be a boolean (true/false)"
       );
     }
+    if (published === true) {
+      // Step 1: Set all other blogs to featured = false
+      await photodaymodel.updateMany(
+        { published: true },
+        { $set: { published: false } }
+      );
+    }
 
     const updatedPhoto = await photodaymodel.findByIdAndUpdate(
       photoid,
