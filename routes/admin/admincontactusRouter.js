@@ -6,10 +6,10 @@ const admincontactusRouter = Router();
 
 export default admincontactusRouter;
 
-async function getallcontactusHandler(req, res) {
-  try {
-  } catch (error) {
-    console.log("error", error);
-    errorResponse(res, 500, "internal server error");
-  }
-}
+// async function getallcontactusHandler(req, res) {
+//   try {
+//   } catch (error) {
+//     console.log("error", error);
+//     errorResponse(res, 500, "internal server error");
+//   }
+// }

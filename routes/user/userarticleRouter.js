@@ -247,14 +247,26 @@ async function getbrandconnectHandler(req, res) {
     // For each subcategory fetch the latest article
     const result = await Promise.all(
       subcategories.map(async (subcat) => {
-        const latestArticle = await articlemodel
+        let latestArticle = await articlemodel
           .findOne({
             categoryid: id,
             subcategoryid: subcat._id,
             published: true,
+            featured: true,
           })
           .populate("authorid", "firstname lastname designation _id")
           .sort({ createdAt: -1 });
+        // If no featured article found, fallback to latest published
+        if (!latestArticle) {
+          latestArticle = await articlemodel
+            .findOne({
+              categoryid: id,
+              subcategoryid: subcat._id,
+              published: true,
+            })
+            .populate("authorid", "firstname lastname designation _id")
+            .sort({ createdAt: -1 });
+        }
 
         return {
           subcategoryid: subcat._id,
