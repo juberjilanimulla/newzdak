@@ -11,6 +11,7 @@ useradvertisementRouter.get("/herosection", getherosectionadvertiseHandler);
 useradvertisementRouter.get("/photosection", getphotosectionadvertiseHandler);
 useradvertisementRouter.get("/insidehorizontal", getinsidehorizontalHandler);
 useradvertisementRouter.get("/insidevertical", getinsideverticalHandler);
+useradvertisementRouter.get("/indiasection", getindiasectionHandler);
 
 async function getfooteradvertiseHandler(req, res) {
   try {
@@ -93,6 +94,25 @@ async function getinsideverticalHandler(req, res) {
       );
     }
     successResponse(res, "success", advertise);
+  } catch (error) {
+    console.log("error", error);
+    errorResponse(res, 500, "internal server error");
+  }
+}
+
+async function getindiasectionHandler(req, res) {
+  try {
+    const advertise = await advertisementmodel.find({
+      adtype: "indiasection",
+    });
+    if (!advertise) {
+      return errorResponse(
+        res,
+        404,
+        "some inside vertical-section advertisement not found"
+      );
+    }
+    return successResponse(res, "success", advertise);
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
