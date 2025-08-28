@@ -9,6 +9,8 @@ export default useradvertisementRouter;
 useradvertisementRouter.get("/footer", getfooteradvertiseHandler);
 useradvertisementRouter.get("/herosection", getherosectionadvertiseHandler);
 useradvertisementRouter.get("/photosection", getphotosectionadvertiseHandler);
+useradvertisementRouter.get("/insidehorizontal", getinsidehorizontalHandler);
+useradvertisementRouter.get("/insidevertical", getinsideverticalHandler);
 
 async function getfooteradvertiseHandler(req, res) {
   try {
@@ -42,6 +44,17 @@ async function getherosectionadvertiseHandler(req, res) {
 
 async function getphotosectionadvertiseHandler(req, res) {
   try {
+    const advertise = await advertisementmodel
+      .find({ adtype: "photosection" })
+      .sort({ createdAt: -1 });
+    if (!advertise) {
+      return errorResponse(
+        res,
+        404,
+        "some hero-section advertisement not found"
+      );
+    }
+    successResponse(res, "success", advertise);
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
@@ -50,6 +63,17 @@ async function getphotosectionadvertiseHandler(req, res) {
 
 async function getinsidehorizontalHandler(req, res) {
   try {
+    const advertise = await advertisementmodel.find({
+      adtype: "insidehorizontal",
+    });
+    if (!advertise) {
+      return errorResponse(
+        res,
+        404,
+        "some hero-section advertisement not found"
+      );
+    }
+    successResponse(res, "success", advertise);
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
@@ -58,6 +82,17 @@ async function getinsidehorizontalHandler(req, res) {
 
 async function getinsideverticalHandler(req, res) {
   try {
+    const advertise = await advertisementmodel.find({
+      adtype: "insidevertical",
+    });
+    if (!advertise) {
+      return errorResponse(
+        res,
+        404,
+        "some inside vertical-section advertisement not found"
+      );
+    }
+    successResponse(res, "success", advertise);
   } catch (error) {
     console.log("error", error);
     errorResponse(res, 500, "internal server error");
