@@ -84,7 +84,7 @@ async function getalladvertisementHandler(req, res) {
 async function createadvertisementHandler(req, res) {
   try {
     const { companyname, adtype, size, position, link } = req.body;
-    if (!companyname || !adtype || !size || !position || !link) {
+    if (!companyname || !adtype || !link) {
       return errorResponse(res, 400, "some params are missing");
     }
     const params = { companyname, adtype, size, position, link };
@@ -103,13 +103,7 @@ async function updateadvertisementHandler(req, res) {
       return errorResponse(res, 404, "advertisement _id is required");
     }
     const options = { new: true };
-    if (
-      !updatedData.companyname ||
-      !updatedData.adtype ||
-      !updatedData.size ||
-      !updatedData.position ||
-      !updatedData.link
-    ) {
+    if (!updatedData.companyname || !updatedData.adtype || !updatedData.link) {
       return errorResponse(res, 400, "some params are missing");
     }
     const advertise = await advertisementmodel.findByIdAndUpdate(

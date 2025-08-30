@@ -12,7 +12,6 @@ const advertisementSchema = new Schema(
     size: {
       type: String,
       // enum: ["small", "medium", "large"],
-      default: "",
     },
     link: { type: String, default: "" },
     position: { type: String }, // e.g., "homepage-top", "article-right", etc.
