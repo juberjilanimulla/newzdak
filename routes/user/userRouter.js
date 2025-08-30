@@ -4,6 +4,7 @@ import userreadervoiceRouter from "./userreadervoiceRouter.js";
 import useradvertisementRouter from "./useradvertisementRouter.js";
 import usercontactusRouter from "./usercontactusRouter.js";
 import usertermandconditionRouter from "./usertermsandconditiionRouter.js";
+import userprivacypolicyRouter from "./userprivacypolicyRouter.js";
 
 const userRouter = Router();
 
@@ -12,5 +13,6 @@ userRouter.use("/readervoice", userreadervoiceRouter);
 userRouter.use("/advertisement", useradvertisementRouter);
 userRouter.use("/contactus", usercontactusRouter);
 userRouter.use("/termsandcondition", usertermandconditionRouter);
+userRouter.use("/privacypolicy", userprivacypolicyRouter);
 
 export default userRouter;
