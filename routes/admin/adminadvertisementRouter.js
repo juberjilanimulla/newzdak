@@ -207,9 +207,10 @@ async function isactiveadvertisementHandler(req, res) {
   try {
     const { advertiseid, isactive } = req.body;
     if (!advertiseid) {
-      return errorResponse(res, 400, "some params are missing");
+      return errorResponse(res, 400, "advertiseid is required");
     }
-    const advertise = await advertisementmodel.findById({ _id: advertiseid });
+
+    const advertise = await advertisementmodel.findById(advertiseid);
     if (!advertise) {
       return errorResponse(res, 404, "advertise not found");
     }
@@ -218,18 +219,24 @@ async function isactiveadvertisementHandler(req, res) {
       return errorResponse(res, 400, "isactive must be a boolean (true/false)");
     }
 
+    //  If activating, make sure only one per adtype remains active
+    if (isactive === true) {
+      await advertisementmodel.updateMany(
+        { adtype: advertise.adtype, _id: { $ne: advertiseid } },
+        { $set: { isactive: false } }
+      );
+    }
+
+    // Update the current advertisement
     const updateadvertise = await advertisementmodel.findByIdAndUpdate(
       advertiseid,
       { isactive },
       { new: true }
     );
-    if (!updateadvertise) {
-      return errorResponse(res, 404, "advertise not found");
-    }
 
     return successResponse(
       res,
-      `Photoofday published status set to ${isactive}`,
+      `Advertisement status set to ${isactive} for adtype: ${advertise.adtype}`,
       updateadvertise
     );
   } catch (error) {
