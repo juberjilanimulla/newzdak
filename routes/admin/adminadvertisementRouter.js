@@ -40,6 +40,7 @@ async function getalladvertisementHandler(req, res) {
       query.$or = [
         { title: { $regex: searchRegex } },
         { description: { $regex: searchRegex } },
+        { link: { $regex: searchRegex } },
       ];
     }
 
@@ -82,11 +83,11 @@ async function getalladvertisementHandler(req, res) {
 
 async function createadvertisementHandler(req, res) {
   try {
-    const { companyname, adtype, size, position } = req.body;
-    if (!companyname || !adtype || !size || !position) {
+    const { companyname, adtype, size, position, link } = req.body;
+    if (!companyname || !adtype || !size || !position || !link) {
       return errorResponse(res, 400, "some params are missing");
     }
-    const params = { companyname, adtype, size, position };
+    const params = { companyname, adtype, size, position, link };
     const advertisement = await advertisementmodel.create(params);
     successResponse(res, "success", advertisement);
   } catch (error) {
@@ -106,7 +107,8 @@ async function updateadvertisementHandler(req, res) {
       !updatedData.companyname ||
       !updatedData.adtype ||
       !updatedData.size ||
-      !updatedData.position
+      !updatedData.position ||
+      !updatedData.link
     ) {
       return errorResponse(res, 400, "some params are missing");
     }
