@@ -9,6 +9,7 @@ import adminadvertisementRouter from "./adminadvertisementRouter.js";
 import adminreadervoiceRouter from "./adminreadervoiceRouter.js";
 import admincontactusRouter from "./admincontactusRouter.js";
 import admintermsandconditionRouter from "./admintermsandconditionRouter.js";
+import adminprivacypolicyRouter from "./adminprivacypolicyRouter.js";
 
 const adminRouter = Router();
 
@@ -23,3 +24,4 @@ adminRouter.use("/advertisement", adminadvertisementRouter);
 adminRouter.use("/readervoice", adminreadervoiceRouter);
 adminRouter.use("/contactus", admincontactusRouter);
 adminRouter.use("/termsandcondition", admintermsandconditionRouter);
+adminRouter.use("/privacypolicy", adminprivacypolicyRouter);
